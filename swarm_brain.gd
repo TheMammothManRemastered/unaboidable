@@ -1,14 +1,16 @@
 extends Node2D
 class_name SwarmBrain
 
-# parent class for all boids, defines basic behaviour
+# the most basic boid brain, brilliantly defines basic boid behaviour
 @export var coherence_weight: float = 1.0
-@export var separation_weight: float = 3.5
-@export var separation_distance: float = 30.0
+@export var separation_weight: float = 1.0
+@export var separation_radius: float = 30.0
 @export var alignment_weight: float = 1.0
-@export var world_boundary_weight: float = 10.0
+@export var visibility_radius: float = 75.0
+@export var world_boundary_weight: float = 1.0
+@export var goal_weight: float = 1.0
+
 @export var world_box_size: Vector2 = Vector2(1920, 1080)
-@export var goal_weight: float = 15.4
 @export var maximum_speed: float = 400.0
 @export var acceleration: float = 10.0
 
@@ -29,11 +31,7 @@ func _physics_process(delta: float) -> void:
 		var world_boundary = calculate_world_boundary_vector(i)
 		var goal = calculate_goal_vector(i)
 		
-		var resultant = (coherence * coherence_weight
-		+ separation * separation_weight
-		+ alignment * alignment_weight
-		+ world_boundary * world_boundary_weight
-		+ goal * goal_weight)
+		var resultant = (coherence + separation + alignment)
 		
 		boids[i].velocity += resultant# * acceleration
 		cap_speed(boids[i])
@@ -73,11 +71,34 @@ func calculate_global_center_of_mass() -> Vector2:
 func calculate_local_center_of_mass(index: int) -> Vector2:
 	return (global_center_of_mass - boids[index].global_position) / (boids.size() - 1)
 
-# this calculates the center of mass for the boid swarm and biases each boid towards it
+func calculate_visual_center_of_mass(index: int) -> Dictionary:
+	var out: Vector2 = Vector2.ZERO
+	var n_neighbors: int = 0
+	
+	for i in range(0, boids.size()):
+		# skip the boid if it isn't in our sight or if it's too close
+		if (boids[i].global_position.distance_to(boids[index].global_position) > visibility_radius
+		or  boids[i].global_position.distance_to(boids[index].global_position) <= separation_radius):
+			continue
+		out += boids[i].global_position
+		n_neighbors += 1
+	
+	return {
+		"point" : out,
+		"count" : n_neighbors 
+	}
+
 func calculate_coherence_vector(index: int) -> Vector2:
-	var local_com: Vector2 = calculate_local_center_of_mass(index)
-	# get direction towards the local center of mass
-	return (local_com - boids[index].global_position)
+	var vcomdict = calculate_visual_center_of_mass(index)
+	if vcomdict["count"] == 0:
+		return Vector2.ZERO
+	
+	var vcom = vcomdict["point"]
+	var n_neighbors = vcomdict["count"]
+	
+	var out = (vcom / float(n_neighbors)) - boids[index].global_position
+	
+	return out * coherence_weight
 
 func calculate_separation_vector(index: int) -> Vector2:
 	var out: Vector2 = Vector2.ZERO
@@ -87,23 +108,29 @@ func calculate_separation_vector(index: int) -> Vector2:
 		if (i == index): # don't consider ourselves
 			continue
 		var other_boid: Boid = boids[i]
-		if (boid.global_position.distance_to(other_boid.global_position) > separation_distance):
+		if (boid.global_position.distance_to(other_boid.global_position) > separation_radius):
 			continue
 		# we are too close to the other boid, move us away from it
-		out = out - (other_boid.global_position - boid.global_position)
+		out += (boid.global_position - other_boid.global_position)
 	# may be zero if no boids are nearby
-	return out
+	return out * separation_weight
 
-# try to match velocity with other boids
 func calculate_alignment_vector(index: int) -> Vector2:
 	var out: Vector2 = Vector2.ZERO
+	var n_neighbors: int = 0
 	for i in range(0, boids.size()):
 		if (i == index):
 			continue
+		if (boids[i].global_position.distance_to(boids[index].global_position) > visibility_radius):
+			continue
 		out += boids[i].velocity
+		n_neighbors += 1
 	
-	out /= boids.size() - 1
-	out = (out - boids[index].velocity) / 8.0
+	if (n_neighbors == 0):
+		return Vector2.ZERO
+	
+	out /= n_neighbors
+	out = (out - boids[index].velocity) * alignment_weight
 	
 	return out
 

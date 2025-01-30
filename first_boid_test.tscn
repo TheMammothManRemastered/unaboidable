@@ -13,7 +13,6 @@ world_box_size = Vector2(1152, 648)
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(-1, 2)
-zoom = Vector2(0.4, 0.4)
 
 [node name="HBoxContainer" type="HBoxContainer" parent="."]
 grow_horizontal = 2
@@ -30,6 +29,10 @@ text = "Get Boidin'"
 [node name="Button2" type="Button" parent="HBoxContainer"]
 layout_mode = 2
 text = "Clear Goal"
+
+[node name="Button3" type="Button" parent="HBoxContainer"]
+layout_mode = 2
+text = "Kill All Boids"
 
 [node name="Goal1" type="Node2D" parent="."]
 position = Vector2(-1053, 345)
