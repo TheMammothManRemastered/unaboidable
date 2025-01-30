@@ -1,0 +1,25 @@
+[gd_scene load_steps=3 format=3 uid="uid://dsne66h4wu4po"]
+
+[ext_resource type="Script" path="res://swarm_brain.gd" id="1_63red"]
+[ext_resource type="Script" path="res://debug_boid_spawn.gd" id="2_fy16j"]
+
+[node name="BoidTest" type="Node2D"]
+
+[node name="SwarmBrain" type="Node2D" parent="."]
+script = ExtResource("1_63red")
+separation_distance = 30.0
+world_boundary_weight = 500.0
+world_box_size = Vector2(1152, 648)
+
+[node name="Button" type="Button" parent="."]
+offset_right = 8.0
+offset_bottom = 8.0
+text = "Get Boidin'"
+script = ExtResource("2_fy16j")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(-1, 2)
+zoom = Vector2(0.47, 0.47)
+
+[connection signal="boid" from="Button" to="SwarmBrain" method="spawn_boids"]
+[connection signal="pressed" from="Button" to="Button" method="_on_pressed"]
