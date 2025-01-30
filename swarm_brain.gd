@@ -3,19 +3,21 @@ class_name SwarmBrain
 
 # parent class for all boids, defines basic behaviour
 @export var coherence_weight: float = 1.0
-@export var separation_weight: float = 2.5
-@export var separation_distance: float = 20.0
+@export var separation_weight: float = 3.5
+@export var separation_distance: float = 30.0
 @export var alignment_weight: float = 1.0
-@export var world_boundary_weight: float = 24.0
+@export var world_boundary_weight: float = 10.0
 @export var world_box_size: Vector2 = Vector2(1920, 1080)
-@export var goal_weight: float = 0.9
+@export var goal_weight: float = 15.4
 @export var maximum_speed: float = 400.0
+@export var acceleration: float = 10.0
 
 var boid_scene: PackedScene = preload("res://boid.tscn")
 
 var boids: Array[Boid] = []
 var global_center_of_mass: Vector2
 var world_box: Vector2 = world_box_size / 2.0
+var goal: Node2D = null
 
 func _physics_process(delta: float) -> void:
 	global_center_of_mass = calculate_global_center_of_mass()
@@ -25,19 +27,24 @@ func _physics_process(delta: float) -> void:
 		var separation = calculate_separation_vector(i)
 		var alignment = calculate_alignment_vector(i)
 		var world_boundary = calculate_world_boundary_vector(i)
+		var goal = calculate_goal_vector(i)
 		
 		var resultant = (coherence * coherence_weight
 		+ separation * separation_weight
 		+ alignment * alignment_weight
-		+ world_boundary * world_boundary_weight)
+		+ world_boundary * world_boundary_weight
+		+ goal * goal_weight)
 		
-		boids[i].velocity += resultant
+		boids[i].velocity += resultant# * acceleration
 		cap_speed(boids[i])
 		boids[i].move_and_slide()
 
 func cap_speed(b: Boid) -> void:
 	if (b.velocity.length() > maximum_speed):
 		b.velocity = b.velocity.normalized() * maximum_speed
+
+func set_goal(to: Node2D) -> void:
+	goal = to
 
 func spawn_boids(count: int, position: Vector2, spacing: Vector2) -> void:
 	boids.clear()
@@ -101,7 +108,9 @@ func calculate_alignment_vector(index: int) -> Vector2:
 	return out
 
 func calculate_goal_vector(index: int) -> Vector2:
-	return Vector2.ZERO
+	if (goal == null):
+		return Vector2.ZERO
+	return boids[index].global_position.move_toward(goal.global_position, 999.0).normalized()
 
 func calculate_world_boundary_vector(index: int) -> Vector2:
 	var out: Vector2 = Vector2.ZERO
