@@ -1,0 +1,82 @@
+[gd_scene load_steps=13 format=3 uid="uid://bd52wxgkn7xto"]
+
+[ext_resource type="Script" path="res://player/player.gd" id="1_qpvai"]
+[ext_resource type="Shader" path="res://art/marker.gdshader" id="2_k7hww"]
+[ext_resource type="Texture2D" uid="uid://bagnkt67v3352" path="res://art/marker_texture_black.png" id="3_8mfqh"]
+[ext_resource type="Texture2D" uid="uid://dkh2girwy5yux" path="res://player/sprites/player_full_reference.png" id="4_fhymh"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_65lrr"]
+size = Vector2(96, 173)
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_q35dp"]
+frequency = 0.0051
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_ai8ok"]
+seamless = true
+noise = SubResource("FastNoiseLite_q35dp")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_re8hb"]
+shader = ExtResource("2_k7hww")
+shader_parameter/noise_scale = 0.003
+shader_parameter/noise_texture = SubResource("NoiseTexture2D_ai8ok")
+shader_parameter/marker_texture = ExtResource("3_8mfqh")
+
+[sub_resource type="Gradient" id="Gradient_s7c5y"]
+offsets = PackedFloat32Array(0, 0.943662, 1)
+colors = PackedColorArray(0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_kspvi"]
+gradient = SubResource("Gradient_s7c5y")
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.393204)
+
+[sub_resource type="Curve" id="Curve_b0aqu"]
+_data = [Vector2(0, 0.274725), 0.0, 0.0, 0, 0]
+point_count = 1
+
+[sub_resource type="Curve" id="Curve_cm0hu"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[node name="Player" type="CharacterBody2D"]
+script = ExtResource("1_qpvai")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -79.5)
+shape = SubResource("RectangleShape2D_65lrr")
+
+[node name="Visuals" type="Node2D" parent="."]
+
+[node name="CanvasGroup" type="CanvasGroup" parent="Visuals"]
+material = SubResource("ShaderMaterial_re8hb")
+
+[node name="Sprite2D" type="Sprite2D" parent="Visuals/CanvasGroup"]
+position = Vector2(-23, -93)
+scale = Vector2(0.43957, 0.43957)
+texture = ExtResource("4_fhymh")
+
+[node name="Node" type="Node" parent="."]
+
+[node name="CanvasGroup" type="CanvasGroup" parent="Node"]
+material = SubResource("ShaderMaterial_re8hb")
+
+[node name="JumpParticles" type="CPUParticles2D" parent="Node/CanvasGroup"]
+emitting = false
+amount = 4
+lifetime = 0.4
+one_shot = true
+explosiveness = 1.0
+fixed_fps = 12
+texture = SubResource("GradientTexture2D_kspvi")
+particle_flag_align_y = true
+direction = Vector2(0, -1)
+spread = 55.91
+gravity = Vector2(0, 900)
+initial_velocity_min = 191.92
+initial_velocity_max = 292.93
+scale_amount_min = 0.3
+scale_amount_max = 0.5
+split_scale = true
+scale_curve_x = SubResource("Curve_b0aqu")
+scale_curve_y = SubResource("Curve_cm0hu")

@@ -1,0 +1,126 @@
+[gd_scene load_steps=21 format=3 uid="uid://btmg41ucp5akp"]
+
+[ext_resource type="Texture2D" uid="uid://ckmk0u2ts2ett" path="res://art/paper_bg.png" id="1_flfn5"]
+[ext_resource type="Shader" path="res://art/marker.gdshader" id="2_pylqc"]
+[ext_resource type="Texture2D" uid="uid://bagnkt67v3352" path="res://art/marker_texture_black.png" id="3_j3mcp"]
+[ext_resource type="Texture2D" uid="uid://bnbsv7xt2soxi" path="res://world/floor.png" id="4_dxxqf"]
+[ext_resource type="PackedScene" uid="uid://bd52wxgkn7xto" path="res://player/player.tscn" id="5_o3l85"]
+[ext_resource type="Texture2D" uid="uid://4cm83li2agbv" path="res://art/bg_border1.png" id="6_mrhn8"]
+[ext_resource type="Texture2D" uid="uid://y53hj5to4p3l" path="res://art/bg_border2.png" id="7_iaibe"]
+[ext_resource type="Texture2D" uid="uid://cwhbasrqf4vqk" path="res://art/bg_border3.png" id="8_su2u6"]
+[ext_resource type="Texture2D" uid="uid://bqetlawthccqm" path="res://art/lighting_overlay.png" id="9_7ulir"]
+[ext_resource type="Script" path="res://art/lighting_overlay.gd" id="10_pxwgn"]
+
+[sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_pybsb"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_q35dp"]
+frequency = 0.0051
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_ai8ok"]
+seamless = true
+noise = SubResource("FastNoiseLite_q35dp")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_re8hb"]
+shader = ExtResource("2_pylqc")
+shader_parameter/noise_scale = 0.003
+shader_parameter/noise_texture = SubResource("NoiseTexture2D_ai8ok")
+shader_parameter/marker_texture = ExtResource("3_j3mcp")
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_28dom"]
+atlas = ExtResource("4_dxxqf")
+region = Rect2(0, 0, 1908, 97)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_psukg"]
+atlas = ExtResource("4_dxxqf")
+region = Rect2(0, 97, 1908, 97)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_65bqn"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_28dom")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_psukg")
+}],
+"loop": true,
+"name": &"default",
+"speed": 6.0
+}]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_lchyn"]
+atlas = ExtResource("6_mrhn8")
+region = Rect2(0, 0, 1944, 1296)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_f1sw8"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_lchyn")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_iaibe")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_su2u6")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_eflm1"]
+blend_mode = 3
+
+[node name="World" type="Node2D"]
+
+[node name="PaperBg" type="Sprite2D" parent="."]
+position = Vector2(525, 288)
+texture = ExtResource("1_flfn5")
+
+[node name="Floor" type="StaticBody2D" parent="."]
+position = Vector2(568, 602)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Floor"]
+shape = SubResource("WorldBoundaryShape2D_pybsb")
+
+[node name="CanvasGroup" type="CanvasGroup" parent="."]
+material = SubResource("ShaderMaterial_re8hb")
+position = Vector2(681, 370)
+
+[node name="Floor" type="AnimatedSprite2D" parent="CanvasGroup"]
+position = Vector2(-118, 234)
+scale = Vector2(0.558021, 0.558021)
+sprite_frames = SubResource("SpriteFrames_65bqn")
+autoplay = "default"
+frame_progress = 0.203264
+
+[node name="Player" parent="." instance=ExtResource("5_o3l85")]
+position = Vector2(437, 269)
+
+[node name="Timer" type="Timer" parent="."]
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="PaperBorders" type="AnimatedSprite2D" parent="CanvasLayer"]
+scale = Vector2(0.592513, 0.499655)
+sprite_frames = SubResource("SpriteFrames_f1sw8")
+autoplay = "default"
+frame_progress = 0.612936
+centered = false
+
+[node name="LightingOverlay" type="TextureRect" parent="CanvasLayer"]
+material = SubResource("CanvasItemMaterial_eflm1")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -453.0
+offset_top = -255.0
+offset_right = 454.0
+offset_bottom = 255.0
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(1000, 600)
+texture = ExtResource("9_7ulir")
+expand_mode = 1
+script = ExtResource("10_pxwgn")
