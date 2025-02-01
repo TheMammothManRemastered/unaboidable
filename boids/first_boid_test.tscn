@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://dsne66h4wu4po"]
+[gd_scene load_steps=4 format=3 uid="uid://dsne66h4wu4po"]
 
 [ext_resource type="Script" path="res://boids/swarm_brain.gd" id="1_63red"]
 [ext_resource type="Script" path="res://boids/debug_boid_spawn.gd" id="2_fy16j"]
+[ext_resource type="Script" path="res://boids/swarm_overlord.gd" id="3_nuwsc"]
 
 [node name="BoidTest" type="Node2D"]
 script = ExtResource("2_fy16j")
@@ -56,6 +57,9 @@ position = Vector2(651, -180)
 offset_right = 8.0
 offset_bottom = 8.0
 text = "Goal 2"
+
+[node name="SwarmOverlord" type="Node2D" parent="."]
+script = ExtResource("3_nuwsc")
 
 [connection signal="boid" from="." to="SwarmBrain" method="spawn_boids"]
 [connection signal="pressed" from="HBoxContainer/Button" to="." method="_on_pressed"]
