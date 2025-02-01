@@ -1,18 +1,25 @@
 [gd_scene load_steps=3 format=3 uid="uid://dsne66h4wu4po"]
 
-[ext_resource type="Script" path="res://swarm_brain.gd" id="1_63red"]
-[ext_resource type="Script" path="res://debug_boid_spawn.gd" id="2_fy16j"]
+[ext_resource type="Script" path="res://boids/swarm_brain.gd" id="1_63red"]
+[ext_resource type="Script" path="res://boids/debug_boid_spawn.gd" id="2_fy16j"]
 
 [node name="BoidTest" type="Node2D"]
 script = ExtResource("2_fy16j")
 
 [node name="SwarmBrain" type="Node2D" parent="."]
 script = ExtResource("1_63red")
-world_boundary_weight = 100.0
-world_box_size = Vector2(1152, 648)
+separation_weight = 30.0
+alignment_weight = 0.2
+cohesion_weight = 0.15
+separation_radius = 40.0
+cohesion_radius = 150.0
+world_weight = 35.0
+maximum_speed = 300.0
+acceleration = 50.0
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(-1, 2)
+zoom = Vector2(0.4, 0.4)
 
 [node name="HBoxContainer" type="HBoxContainer" parent="."]
 grow_horizontal = 2
@@ -52,6 +59,3 @@ text = "Goal 2"
 
 [connection signal="boid" from="." to="SwarmBrain" method="spawn_boids"]
 [connection signal="pressed" from="HBoxContainer/Button" to="." method="_on_pressed"]
-[connection signal="pressed" from="HBoxContainer/Button2" to="." method="_on_button_2_pressed"]
-[connection signal="pressed" from="Goal1/Button" to="." method="_set_goal_1"]
-[connection signal="pressed" from="Goal2/Button" to="." method="_set_goal_2"]

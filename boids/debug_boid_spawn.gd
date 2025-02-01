@@ -2,8 +2,10 @@ extends Node2D
 
 signal boid(int, Vector2, Vector3)
 
+@export var number_of_boids: int = 30
+
 func _on_pressed() -> void:
-	boid.emit(20, Vector2(0, 0), Vector2(50, 50))
+	boid.emit(number_of_boids, Vector2(0, 0), Vector2(500, 500))
 
 func _on_button_2_pressed() -> void:
 	$SwarmBrain.set_goal(null)
