@@ -1,12 +1,24 @@
 #[compute]
 #version 450
 
-#define BOID_INDEX  (gl_GlobalInvocationID.x)
+// TODO: extract more stuff into macros
+#define BOID_INDEX          (gl_GlobalInvocationID.x)
+#define BOID_POSITION(i)    (boid_positions.data[i])
+#define BOID_VELOCITY(i)    (boid_velocities.data[i])
+#define CURR_BOID_POSITION  (BOID_POSITION(BOID_INDEX))
+#define CURR_BOID_VELOCITY  (BOID_VELOCITY(BOID_INDEX))
+
+// how to approach multiple boid types?
+// i think they should all be done here, but use different weights/code
+// which one they use can be determined by using an SSBO to store each boid's type
+// which can just be an integer
 
 // Invocations in the (x, y, z) dimension
+// since we deal with a 1d array of boids, there's no real reason to 
+// stray from a single dimension. 
 layout(local_size_x = 1024, local_size_y = 1, local_size_z = 1) in;
 
-// Uniform bindings
+// the CPU updates this infrequently
 layout(set = 0, binding = 0, std430) buffer PositionBuffer {
     vec2 data[];
 } boid_positions;
@@ -14,6 +26,10 @@ layout(set = 0, binding = 1, std430) buffer VelocityBuffer {
     vec2 data[];
 } boid_velocities;
 
+// honestly a majority of this never changes, yet we resend the whole thing every frame
+// I'm not experienced enough in GPU programming to know if this is actually a major
+// performance impact (I suspect it isn't), but splitting this up might not be a bad idea.
+// maybe put the immutable stuff in set 1?
 layout(set = 0, binding = 2, std430) buffer UniformsBuffer {
     float num_boids;
     float max_speed;
