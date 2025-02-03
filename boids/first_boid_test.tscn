@@ -60,6 +60,8 @@ text = "Goal 2"
 
 [node name="SwarmOverlord" type="Node2D" parent="."]
 script = ExtResource("3_nuwsc")
+boids_to_spawn = 1000
+spacing = Vector2(2000, 900)
 
 [connection signal="boid" from="." to="SwarmBrain" method="spawn_boids"]
 [connection signal="pressed" from="HBoxContainer/Button" to="." method="_on_pressed"]

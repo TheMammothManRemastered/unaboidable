@@ -3,7 +3,7 @@ class_name Boid
 
 var radii: Array[float] = []
 var radii_colors: Array[Color] = []
-var velocity: Vector2 = Vector2.ZERO
+var velocity: Vector2 = Vector2.from_angle(PI / 4.0) * 50.0
 
 func add_colored_radius(radius: float, color: Color) -> void:
 	radii.append(radius)
@@ -14,7 +14,6 @@ func draw_colored_radii() -> void:
 
 func _physics_process(delta: float) -> void:
 	self.rotation = self.velocity.normalized().angle() + (PI / 2.0)
-	self.position += velocity * delta
 
 func _draw() -> void:
 	for i in range(radii.size()):
