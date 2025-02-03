@@ -16,6 +16,15 @@ var boid_objects: Array[Boid] = []
 # them for up-to-date boid information
 var boid_positions: Array[Vector2] = []
 var boid_velocities: Array[Vector2] = []
+@export var max_speed: float = 500.0
+@export var boundaries: Vector2 = Vector2(600, 300)
+@export var boundary_weight: float = 35
+@export var separation_radius: float = 40
+@export var separation_weight: float = 30
+@export var alignment_radius: float = 75
+@export var alignment_weight: float = 0.2
+@export var cohesion_radius: float = 150
+@export var cohesion_weight: float = 0.15
 
 # compute shader resources
 var device: RenderingDevice
@@ -57,6 +66,16 @@ func create_float_buffer(array: Array[float]) -> RID:
 func create_boid_uniforms_buffer(delta: float) -> RID:
 	return create_float_buffer([
 		float(boid_objects.size()),
+		max_speed,
+		boundaries.x,
+		boundaries.y,
+		boundary_weight,
+		separation_radius,
+		separation_weight,
+		alignment_radius,
+		alignment_weight,
+		cohesion_radius,
+		cohesion_weight,
 		delta
 	])
 
@@ -136,7 +155,7 @@ func spawn_some_boids() -> void:
 		b.global_position.x += randf_range(-w, w)
 		b.global_position.y += randf_range(-h, h)
 		b.velocity = Vector2.from_angle(randf() * PI * 2.0) * (randf() * 100.0)
-		self.add_child(b)
+		$CanvasGroup.add_child(b)
 		add_boid(b)
 
 func _ready() -> void:

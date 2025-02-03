@@ -19,7 +19,6 @@ maximum_speed = 300.0
 acceleration = 50.0
 
 [node name="Camera2D" type="Camera2D" parent="."]
-position = Vector2(-1, 2)
 zoom = Vector2(0.4, 0.4)
 
 [node name="HBoxContainer" type="HBoxContainer" parent="."]
@@ -60,8 +59,12 @@ text = "Goal 2"
 
 [node name="SwarmOverlord" type="Node2D" parent="."]
 script = ExtResource("3_nuwsc")
-boids_to_spawn = 1000
-spacing = Vector2(2000, 900)
+max_speed = 300.0
+boundaries = Vector2(1000, 750)
+boids_to_spawn = 256
+spacing = Vector2(2000, 1500)
+
+[node name="CanvasGroup" type="CanvasGroup" parent="SwarmOverlord"]
 
 [connection signal="boid" from="." to="SwarmBrain" method="spawn_boids"]
 [connection signal="pressed" from="HBoxContainer/Button" to="." method="_on_pressed"]
