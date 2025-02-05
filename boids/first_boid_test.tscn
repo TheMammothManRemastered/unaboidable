@@ -1,22 +1,15 @@
-[gd_scene load_steps=4 format=3 uid="uid://dsne66h4wu4po"]
+[gd_scene load_steps=5 format=3 uid="uid://dsne66h4wu4po"]
 
-[ext_resource type="Script" path="res://boids/swarm_brain.gd" id="1_63red"]
 [ext_resource type="Script" path="res://boids/debug_boid_spawn.gd" id="2_fy16j"]
 [ext_resource type="Script" path="res://boids/swarm_overlord.gd" id="3_nuwsc"]
+[ext_resource type="Texture2D" uid="uid://dkh2girwy5yux" path="res://player/sprites/player_full_reference.png" id="4_flit2"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_gyofi"]
+radius = 204.0
 
 [node name="BoidTest" type="Node2D"]
 script = ExtResource("2_fy16j")
-
-[node name="SwarmBrain" type="Node2D" parent="."]
-script = ExtResource("1_63red")
-separation_weight = 30.0
-alignment_weight = 0.2
-cohesion_weight = 0.15
-separation_radius = 40.0
-cohesion_radius = 150.0
-world_weight = 35.0
-maximum_speed = 300.0
-acceleration = 50.0
+number_of_boids = 500
 
 [node name="Camera2D" type="Camera2D" parent="."]
 zoom = Vector2(0.4, 0.4)
@@ -61,10 +54,19 @@ text = "Goal 2"
 script = ExtResource("3_nuwsc")
 max_speed = 300.0
 boundaries = Vector2(1000, 750)
-boids_to_spawn = 256
-spacing = Vector2(2000, 1500)
 
 [node name="CanvasGroup" type="CanvasGroup" parent="SwarmOverlord"]
 
-[connection signal="boid" from="." to="SwarmBrain" method="spawn_boids"]
+[node name="Player" type="CharacterBody2D" parent="."]
+position = Vector2(-517.54, -106.276)
+collision_layer = 256
+collision_mask = 8
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Player"]
+position = Vector2(53.54, 38.276)
+shape = SubResource("CircleShape2D_gyofi")
+
+[node name="Sprite2D" type="Sprite2D" parent="Player"]
+texture = ExtResource("4_flit2")
+
 [connection signal="pressed" from="HBoxContainer/Button" to="." method="_on_pressed"]

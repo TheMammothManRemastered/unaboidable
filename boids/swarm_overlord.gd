@@ -1,21 +1,22 @@
 extends Node2D
 class_name SwarmOverlord
 
-# this synchronizes a number of SwarmBrains' compute shaders and calculations
+static var instance: SwarmOverlord
+
 # NOTE: there should only ever be one of these in a scene
 
 var frame_count: int = 0
 var frames_per_swarm_synchronization: int = 3
-
 # set to true when the number of boids changes
-var boids_out_of_date: bool = false
+var boids_out_of_date: bool = true
 # references to every boid we are overlord of
 var boid_objects: Array[Boid] = []
-# these arrays are used to create data that gets sent to the compute shader
-# they only ever get updated when the number of boids changes, do not rely on
-# them for up-to-date boid information
-var boid_positions: Array[Vector2] = []
-var boid_velocities: Array[Vector2] = []
+# these arrays are transformed into data for the compute shader
+# keeping them packed is convenient for that purpose
+var boid_positions: PackedVector2Array = PackedVector2Array([])
+var boid_velocities: PackedVector2Array = PackedVector2Array([])
+var boid_targets: PackedVector2Array = PackedVector2Array([])
+# uniform values to be sent to the compute shader
 @export var max_speed: float = 500.0
 @export var boundaries: Vector2 = Vector2(600, 300)
 @export var boundary_weight: float = 35
@@ -25,6 +26,10 @@ var boid_velocities: Array[Vector2] = []
 @export var alignment_weight: float = 0.2
 @export var cohesion_radius: float = 150
 @export var cohesion_weight: float = 0.15
+# binding locations for each uniform
+const POSITION_UNIFORM_BINDING = 0
+const VELOCITY_UNIFORM_BINDING = 1
+const UNIFORMS_UNIFORM_BINDING = 2
 
 # compute shader resources
 var device: RenderingDevice
@@ -35,28 +40,15 @@ var boid_positions_uniform: RDUniform
 var boid_velocities_buffer: RID
 var boid_velocities_uniform: RDUniform
 var boid_uniforms_buffer: RID
-var boid_uniforms_uniform: RDUniform
+var boid_uniforms_uniform: RDUniform # this name is terrible, why did I call it this?
 var bindings: Array[RDUniform]
 var uniform_set: RID
 
-func add_boid(boid: Boid) -> void:
-	boids_out_of_date = true
-	boid_objects.append(boid)
-	boid_positions.append(Vector2(boid.global_position))
-	boid_velocities.append(Vector2(boid.velocity))
+func are_boids_present() -> bool:
+	return boid_objects.size() != 0
 
-func delete_boid(boid: Boid) -> void:
-	var index = boid_objects.find(boid)
-	if (index == -1):
-		push_warning("Tried to delete nonexistant boid")
-		return
-	boids_out_of_date = true
-	boid_objects.remove_at(index)
-	boid_positions.remove_at(index)
-	boid_velocities.remove_at(index)
-
-func create_vec2_buffer(array: Array[Vector2]) -> RID:
-	var bytes: PackedByteArray = PackedVector2Array(array).to_byte_array()
+func create_vec2_buffer(packed_array: PackedVector2Array) -> RID:
+	var bytes: PackedByteArray = packed_array.to_byte_array()
 	return device.storage_buffer_create(bytes.size(), bytes)
 
 func create_float_buffer(array: Array[float]) -> RID:
@@ -64,6 +56,7 @@ func create_float_buffer(array: Array[float]) -> RID:
 	return device.storage_buffer_create(bytes.size(), bytes)
 
 func create_boid_uniforms_buffer(delta: float) -> RID:
+	# NOTE: these should be filled out in the SAME ORDER as specified in the compute shader!
 	return create_float_buffer([
 		float(boid_objects.size()),
 		max_speed,
@@ -79,11 +72,17 @@ func create_boid_uniforms_buffer(delta: float) -> RID:
 		delta
 	])
 
-func create_uniform(resource: RID, type: RenderingDevice.UniformType, binding: int):
+func create_uniform(resource: RID, type: RenderingDevice.UniformType, binding: int) -> RDUniform:
 	var uniform = RDUniform.new()
 	uniform.uniform_type = type
 	uniform.binding = binding
 	uniform.add_id(resource)
+	return uniform
+
+func create_empty_uniform(type: RenderingDevice.UniformType, binding: int) -> RDUniform:
+	var uniform = RDUniform.new()
+	uniform.uniform_type = type
+	uniform.binding = binding
 	return uniform
 
 func setup_compute_shaders() -> void:
@@ -94,34 +93,33 @@ func setup_compute_shaders() -> void:
 	compute_pipeline = device.compute_pipeline_create(compute_shader)
 
 func setup_bindings() -> void:
-	boid_positions_buffer = create_vec2_buffer(boid_positions)
-	boid_positions_uniform = create_uniform(boid_positions_buffer, RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER, 0)
-	
-	boid_velocities_buffer = create_vec2_buffer(boid_velocities)
-	boid_velocities_uniform = create_uniform(boid_velocities_buffer, RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER, 1)
-	
-	boid_uniforms_buffer = create_boid_uniforms_buffer(0.0)
-	boid_uniforms_uniform = create_uniform(boid_uniforms_buffer, RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER, 2)
+	boid_positions_uniform = create_empty_uniform(RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER, POSITION_UNIFORM_BINDING)
+	boid_velocities_uniform = create_empty_uniform(RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER, VELOCITY_UNIFORM_BINDING)
+	boid_uniforms_uniform = create_empty_uniform(RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER, UNIFORMS_UNIFORM_BINDING)
 	
 	bindings = [boid_positions_uniform, boid_velocities_uniform, boid_uniforms_uniform]
 
+func set_uniform(uniform: RDUniform, resource: RID) -> void:
+	var to_clear = uniform.get_ids()
+	for c in to_clear:
+		device.free_rid(c)
+	uniform.clear_ids()
+	uniform.add_id(resource)
+
 func update_compute_data(delta: float) -> void:
+	if not are_boids_present():
+		return
+	
 	if boids_out_of_date:
-		device.free_rid(boid_positions_buffer)
 		boid_positions_buffer = create_vec2_buffer(boid_positions)
-		boid_positions_uniform.clear_ids()
-		boid_positions_uniform.add_id(boid_positions_buffer)
+		set_uniform(boid_positions_uniform, boid_positions_buffer)
 		
-		device.free_rid(boid_velocities_buffer)
 		boid_velocities_buffer = create_vec2_buffer(boid_velocities)
-		boid_velocities_uniform.clear_ids()
-		boid_velocities_uniform.add_id(boid_velocities_buffer)
+		set_uniform(boid_velocities_uniform, boid_velocities_buffer)
 		boids_out_of_date = false
 	
-	device.free_rid(boid_uniforms_buffer)
 	boid_uniforms_buffer = create_boid_uniforms_buffer(delta)
-	boid_uniforms_uniform.clear_ids()
-	boid_uniforms_uniform.add_id(boid_uniforms_buffer)
+	set_uniform(boid_uniforms_uniform, boid_uniforms_buffer)
 	uniform_set = device.uniform_set_create(bindings, compute_shader, 0)
 	
 	# send this to the GPU
@@ -133,6 +131,9 @@ func update_compute_data(delta: float) -> void:
 	device.submit()
 
 func retrieve_compute_data() -> void:
+	if not are_boids_present():
+		return
+	
 	var positions_bytes: PackedByteArray = device.buffer_get_data(boid_positions_buffer)
 	var positions_floats: PackedFloat32Array = positions_bytes.to_float32_array()
 	
@@ -140,36 +141,76 @@ func retrieve_compute_data() -> void:
 	var velocities_floats: PackedFloat32Array = velocities_bytes.to_float32_array()
 	
 	for i in range(0, boid_objects.size()):
-		boid_objects[i].global_position = Vector2(positions_floats[i * 2], positions_floats[i * 2 + 1])
-		boid_objects[i].velocity = Vector2(velocities_floats[i * 2], velocities_floats[i * 2 + 1])
+		if (i * 2 >= positions_floats.size() or i * 2 >= velocities_floats.size()):
+			return
+		var curr_position: Vector2 = Vector2(positions_floats[i * 2], positions_floats[i * 2 + 1])
+		var curr_velocity: Vector2 = Vector2(velocities_floats[i * 2], velocities_floats[i * 2 + 1])
+		boid_objects[i].global_position = curr_position
+		boid_objects[i].velocity = curr_velocity
+		boid_positions[i] = curr_position
+		boid_velocities[i] = curr_velocity
 
-@export var boids_to_spawn: int = 20
-@export var spacing: Vector2 = Vector2(200.0, 200.0)
+var boid_add_queue = []
+var boid_remove_queue = []
+
+func queue_add_boid(b: Boid) -> void:
+	boid_add_queue.push_back(b)
+
+func queue_remove_boid(b: Boid) -> void:
+	boid_remove_queue.push_back(b)
+
+func add_boid(b: Boid) -> void:
+	boid_objects.append(b)
+	boid_positions.append(b.global_position)
+	boid_velocities.append(b.velocity)
+	boids_out_of_date = true
+
+func remove_boid(b: Boid) -> void:
+	var i = boid_objects.find(b)
+	if (i == -1):
+		return
+	boid_objects.remove_at(i)
+	boid_positions.remove_at(i)
+	boid_velocities.remove_at(i)
+	boids_out_of_date = true
+
+func process_queues() -> void:
+	while boid_add_queue.size() > 0:
+		var b: Boid = boid_add_queue.pop_front()
+		add_boid(b)
+		b.on_overlord_added()
+	while boid_remove_queue.size() > 0:
+		var b: Boid = boid_remove_queue.pop_front()
+		remove_boid(b)
+		b.on_overlord_removed()
+
+# this is a debug function
 var boid_scene = preload("res://boids/boid.tscn")
-func spawn_some_boids() -> void:
+func spawn_some_boids(boids_to_spawn, spacing) -> void:
 	for i in range(boids_to_spawn):
 		var b: Boid = boid_scene.instantiate()
-		b.global_position = position
+		b.global_position = Vector2(0, 0)
 		var w = spacing.x / 2.0
 		var h = spacing.y / 2.0
 		b.global_position.x += randf_range(-w, w)
 		b.global_position.y += randf_range(-h, h)
 		b.velocity = Vector2.from_angle(randf() * PI * 2.0) * (randf() * 100.0)
 		$CanvasGroup.add_child(b)
-		add_boid(b)
+		queue_add_boid(b)
+	print("all boids are added")
 
 func _ready() -> void:
-	spawn_some_boids()
+	instance = self
 	
 	setup_compute_shaders()
 	setup_bindings()
-	
-	update_compute_data(0.0)
 
 func _physics_process(delta: float) -> void:
-	if (frame_count % frames_per_swarm_synchronization):
-		update_compute_data(delta)
-		device.sync()
+	# NOTE: boids being added or removed is only processed every X frames
+	#if ((frame_count % frames_per_swarm_synchronization) == 0 or boids_out_of_date):
+	process_queues()
+	update_compute_data(delta)
+	device.sync()
 	
 	retrieve_compute_data()
 	

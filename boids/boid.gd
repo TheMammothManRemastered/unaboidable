@@ -4,6 +4,7 @@ class_name Boid
 var radii: Array[float] = []
 var radii_colors: Array[Color] = []
 var velocity: Vector2 = Vector2.from_angle(PI / 4.0) * 50.0
+var dead: bool = false
 
 func add_colored_radius(radius: float, color: Color) -> void:
 	radii.append(radius)
@@ -25,3 +26,15 @@ func distance_to_boid(other: Boid) -> float:
 func vector_to_boid(other: Boid, normalize: bool = false) -> Vector2:
 	var v = other.global_position - self.global_position
 	return v.normalized() if normalize else v
+
+
+func _on_body_entered(body: Node2D) -> void:
+	if body.name == "Player" and not dead:
+		self.dead = true
+		SwarmOverlord.instance.queue_remove_boid(self)
+
+func on_overlord_added() -> void:
+	print("hungry for blood >:3")
+
+func on_overlord_removed() -> void:
+	queue_free()
