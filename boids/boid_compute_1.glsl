@@ -163,8 +163,8 @@ vec2 calculate_avoidance_object_vector() {
     for (int i = 0; i < uniforms.num_avoidance_objects; i++) {
         float distance = distance(CURR_BOID_POSITION, avoidance_objects.data[i].position);
         if (distance < avoidance_objects.data[i].minor_radius) {
-            vec2 direction_away = CURR_BOID_POSITION - avoidance_objects.data[i].position;
-            avoidance_object_vector += direction_away / (max(avoidance_objects.data[i].major_radius, 0.0) - CURR_BOID_POSITION);
+            vec2 direction_away = avoidance_objects.data[i].position - CURR_BOID_POSITION;
+            avoidance_object_vector += direction_away / (max(avoidance_objects.data[i].major_radius, 0.01) - distance);
             n++;
         }
     }

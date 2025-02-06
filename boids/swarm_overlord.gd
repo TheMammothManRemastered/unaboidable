@@ -78,8 +78,6 @@ func create_boid_uniforms_buffer(delta: float) -> RID:
 	])
 
 func setup_avoidance_uniform() -> void: 
-	avoidance_objects_uniform = create_empty_uniform(RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER, AVOIDANCE_UNIFORM_BINDING)
-	
 	# make a byte array for the avoidance objects
 	# omfg i need to handle BYTE ALIGNMENT in GDSCRIPT
 	# structure of the shader's AvoidanceObject struct:
@@ -103,7 +101,7 @@ func setup_avoidance_uniform() -> void:
 		" with ", floats_buffer[buffer_index + 2], floats_buffer[buffer_index + 3])
 	
 	avoidance_objects_buffer = create_float_buffer(floats_buffer)
-	set_uniform(avoidance_objects_uniform, avoidance_objects_buffer)
+	avoidance_objects_uniform = create_uniform(avoidance_objects_buffer, RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER, AVOIDANCE_UNIFORM_BINDING)
 
 func create_uniform(resource: RID, type: RenderingDevice.UniformType, binding: int) -> RDUniform:
 	var uniform = RDUniform.new()

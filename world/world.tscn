@@ -72,6 +72,7 @@ position = Vector2(113, -232)
 points = PackedVector2Array(-1118, 227, 936, 218, 930, -940, -1130, -939)
 closed = true
 width = 70.0
+texture = null
 
 [node name="Player" parent="." instance=ExtResource("5_o3l85")]
 position = Vector2(437, 269)
