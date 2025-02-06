@@ -1,4 +1,4 @@
-extends CharacterBody2D
+class_name Player extends CharacterBody2D
 
 ##- Constants -##
 const ACCEL := 4000.0
@@ -15,6 +15,12 @@ const JUMP_MAX_CHARGE_TIME := 0.3
 
 const SQUASH_FACTOR := 3000
 
+const WALL_CLING_SPEED := 50.0
+const WALL_CLING_DECEL := 10000.0
+const WALL_SKID_DECEL := 7000.0
+const WALL_SKID_SPEED := 300.0
+const WALL_JUMP_SPEED := Vector2(800.0, 1000.0)
+
 ##- Instance Variables -##
 var jump_charge_time := 0.0
 var squish = 1.0
@@ -22,8 +28,16 @@ var delayed_squish = squish
 var facing_direction := +1 ## -1 if facing left, +1 if facing right
 
 ##- Nodes -##
-@onready var visuals: Node2D = $Visuals
-@onready var jump_particles: CPUParticles2D = $Node/CanvasGroup/JumpParticles
+@onready var visuals: Node2D = %Visuals
+@onready var jump_particles: CPUParticles2D = %JumpParticles
+@onready var wall_jump_particles: CPUParticles2D = %WallJumpParticles
+@onready var left_wall_area: Area2D = %LeftWallArea
+@onready var right_wall_area: Area2D = %RightWallArea
+
+static var instance: Player
+
+func _init() -> void:
+	instance = self
 
 func _physics_process(delta: float) -> void:
 	# Add the gravity.
@@ -37,7 +51,6 @@ func _physics_process(delta: float) -> void:
 		var jump_progress = min(jump_charge_time / JUMP_MAX_CHARGE_TIME, 1.0)
 		var jump_force = lerp(JUMP_MIN, JUMP_MAX, jump_progress)
 		velocity.y = -jump_force
-		jump_particles.global_position = self.global_position
 		jump_particles.restart()
 	
 	# 	- jump charge
@@ -61,6 +74,22 @@ func _physics_process(delta: float) -> void:
 		var decel = GROUND_DECEL if is_on_floor() else AIR_DECEL
 		velocity.x = move_toward(velocity.x, 0, decel * delta)
 	
+	# Wall jumps
+	if not is_on_floor():
+		var  left_wall =  left_wall_area.has_overlapping_bodies()
+		var right_wall = right_wall_area.has_overlapping_bodies()
+		if left_wall or right_wall:
+			var clinging = Input.is_action_pressed("move_left" if left_wall else "move_right")
+			var normal = +1 if left_wall else -1
+			
+			var min_fall = WALL_CLING_SPEED if clinging else WALL_SKID_SPEED
+			var decel = WALL_CLING_DECEL if clinging else WALL_SKID_DECEL
+			if velocity.y > min_fall:
+				velocity.y = move_toward(velocity.y, min_fall, decel * delta)
+			
+			if Input.is_action_just_pressed("jump"):
+				wall_jump(normal)
+		
 	# facing direction
 	if is_on_floor():
 		if velocity.x < 0: facing_direction = -1
@@ -77,3 +106,12 @@ func _physics_process(delta: float) -> void:
 	visuals.scale.x *= facing_direction
 
 	move_and_slide()
+
+func wall_jump(normal: int) -> void:
+	velocity.x = WALL_JUMP_SPEED.x * normal
+	if velocity.y > 0: velocity.y = 0
+	velocity.y -= WALL_JUMP_SPEED.y
+	facing_direction = normal
+	
+	wall_jump_particles.scale.x = normal
+	wall_jump_particles.restart()
