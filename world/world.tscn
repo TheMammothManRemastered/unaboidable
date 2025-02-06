@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://btmg41ucp5akp"]
+[gd_scene load_steps=16 format=3 uid="uid://btmg41ucp5akp"]
 
 [ext_resource type="Texture2D" uid="uid://ckmk0u2ts2ett" path="res://art/paper_bg.png" id="1_flfn5"]
 [ext_resource type="PackedScene" uid="uid://l26qgmbk7l7l" path="res://art/scribble/scribble_group.tscn" id="3_4h5r8"]
@@ -9,6 +9,7 @@
 [ext_resource type="Texture2D" uid="uid://cwhbasrqf4vqk" path="res://art/paper_border/bg_border3.png" id="8_su2u6"]
 [ext_resource type="Texture2D" uid="uid://bqetlawthccqm" path="res://art/lighting_overlay.png" id="9_7ulir"]
 [ext_resource type="Script" path="res://art/lighting_overlay.gd" id="10_pxwgn"]
+[ext_resource type="Script" path="res://boids/swarm_overlord.gd" id="11_k5nf0"]
 [ext_resource type="PackedScene" uid="uid://ocxj8tt81w8w" path="res://camera/main_cam.tscn" id="11_ms1ph"]
 
 [sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_pybsb"]
@@ -64,9 +65,10 @@ position = Vector2(22, -1173)
 rotation = 3.14159
 shape = SubResource("WorldBoundaryShape2D_pybsb")
 
-[node name="ScribbleGroup" parent="." instance=ExtResource("3_4h5r8")]
+[node name="ScribbleGroup" parent="Walls" instance=ExtResource("3_4h5r8")]
+position = Vector2(113, -232)
 
-[node name="Line2D" parent="ScribbleGroup" instance=ExtResource("4_6c47e")]
+[node name="Line2D" parent="Walls/ScribbleGroup" instance=ExtResource("4_6c47e")]
 points = PackedVector2Array(-1118, 227, 936, 218, 930, -940, -1130, -939)
 closed = true
 width = 70.0
@@ -74,7 +76,10 @@ width = 70.0
 [node name="Player" parent="." instance=ExtResource("5_o3l85")]
 position = Vector2(437, 269)
 
-[node name="Timer" type="Timer" parent="."]
+[node name="MainCam" parent="." instance=ExtResource("11_ms1ph")]
+position = Vector2(576, 25)
+zoom = Vector2(0.5, 0.5)
+player_influence = 0.02
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
@@ -101,7 +106,11 @@ texture = ExtResource("9_7ulir")
 expand_mode = 1
 script = ExtResource("10_pxwgn")
 
-[node name="MainCam" parent="." instance=ExtResource("11_ms1ph")]
-position = Vector2(576, 25)
-zoom = Vector2(0.5, 0.5)
-player_influence = 0.02
+[node name="SwarmOverlord" type="Node2D" parent="."]
+position = Vector2(547, 70)
+script = ExtResource("11_k5nf0")
+max_speed = 300.0
+
+[node name="CanvasGroup" type="CanvasGroup" parent="SwarmOverlord"]
+
+[node name="AvoidanceObjects" type="Node2D" parent="SwarmOverlord"]

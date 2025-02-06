@@ -245,6 +245,9 @@ func _ready() -> void:
 	
 	setup_compute_shaders()
 	setup_bindings()
+	
+	# for testing, spawn boids right away
+	spawn_some_boids(30, Vector2(500, 500))
 
 func _physics_process(delta: float) -> void:
 	# NOTE: boids being added or removed is only processed every X frames
@@ -268,3 +271,7 @@ func _exit_tree() -> void:
 	device.free_rid(compute_pipeline)
 	device.free_rid(compute_shader)
 	device.free()
+
+
+func _on_button_pressed() -> void:
+	pass # Replace with function body.
