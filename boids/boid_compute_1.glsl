@@ -45,6 +45,8 @@ layout(set = 0, binding = 3, std430) buffer UniformsBuffer {
     float max_speed;
     float boundary_x;
     float boundary_y;
+    float boundary_origin_x;
+    float boundary_origin_y;
     float boundary_weight;
     float separation_radius;
     float separation_weight;
@@ -63,17 +65,19 @@ void cap_speed() {
 
 vec2 calculate_boundary_vector() {
     vec2 ret = vec2(0.0, 0.0);
+    vec2 origin = vec2(uniforms.boundary_origin_x, uniforms.boundary_origin_y);
+    vec2 boundary = vec2(uniforms.boundary_x, uniforms.boundary_y) / 2.0;
 
-    if (boid_positions.data[BOID_INDEX].x > uniforms.boundary_x) {
+    if (boid_positions.data[BOID_INDEX].x > origin.x + boundary.x) {
         ret.x = -1.0;
     }
-    else if (boid_positions.data[BOID_INDEX].y > uniforms.boundary_y) {
+    else if (boid_positions.data[BOID_INDEX].y > origin.y + boundary.y) {
         ret.y = -1.0;
     }
-    if (boid_positions.data[BOID_INDEX].x < -uniforms.boundary_x) {
+    if (boid_positions.data[BOID_INDEX].x < origin.x - boundary.x) {
         ret.x = 1.0;
     }
-    else if (boid_positions.data[BOID_INDEX].y < -uniforms.boundary_y) {
+    else if (boid_positions.data[BOID_INDEX].y < origin.y - boundary.y) {
         ret.y = 1.0;
     }
 

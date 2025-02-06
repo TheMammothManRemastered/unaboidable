@@ -1,6 +1,5 @@
-[gd_scene load_steps=5 format=3 uid="uid://dnkihiuu2628t"]
+[gd_scene load_steps=4 format=3 uid="uid://dnkihiuu2628t"]
 
-[ext_resource type="Texture2D" uid="uid://b6p5xh2sc6ima" path="res://art/line.png" id="1_tc3gx"]
 [ext_resource type="Script" path="res://art/line_art/scribbled_line.gd" id="2_wetxk"]
 [ext_resource type="Texture2D" uid="uid://fx8n0upcbb8e" path="res://art/line_art/line2.png" id="3_dq03e"]
 [ext_resource type="Texture2D" uid="uid://60oi3lfdghh4" path="res://art/line_art/line1.png" id="3_p6wr6"]
@@ -9,7 +8,7 @@
 texture_repeat = 2
 points = PackedVector2Array(-4, 72, 221, 187, 347, 74)
 width = 35.0
-texture = ExtResource("1_tc3gx")
+texture = ExtResource("3_p6wr6")
 texture_mode = 1
 joint_mode = 2
 script = ExtResource("2_wetxk")

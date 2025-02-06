@@ -72,6 +72,7 @@ position = Vector2(113, -232)
 points = PackedVector2Array(-1118, 227, 936, 218, 930, -940, -1130, -939)
 closed = true
 width = 70.0
+texture = null
 
 [node name="Player" parent="." instance=ExtResource("5_o3l85")]
 position = Vector2(437, 269)
@@ -107,9 +108,11 @@ expand_mode = 1
 script = ExtResource("10_pxwgn")
 
 [node name="SwarmOverlord" type="Node2D" parent="."]
-position = Vector2(547, 70)
+position = Vector2(575, -13)
 script = ExtResource("11_k5nf0")
 max_speed = 300.0
+boundaries = Vector2(2000, 1000)
+boundary_weight = 100.0
 
 [node name="CanvasGroup" type="CanvasGroup" parent="SwarmOverlord"]
 
