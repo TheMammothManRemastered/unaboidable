@@ -108,9 +108,11 @@ expand_mode = 1
 script = ExtResource("10_pxwgn")
 
 [node name="SwarmOverlord" type="Node2D" parent="."]
-position = Vector2(547, 70)
+position = Vector2(575, -13)
 script = ExtResource("11_k5nf0")
 max_speed = 300.0
+boundaries = Vector2(2000, 1000)
+boundary_weight = 100.0
 
 [node name="CanvasGroup" type="CanvasGroup" parent="SwarmOverlord"]
 
