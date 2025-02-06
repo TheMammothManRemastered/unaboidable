@@ -11,6 +11,7 @@ var frames_per_swarm_synchronization: int = 3
 var boids_out_of_date: bool = true
 # references to every boid we are overlord of
 var boid_objects: Array[Boid] = []
+var avoidance_objects: Array[CircleAvoidancePoint] = []
 # these arrays are transformed into data for the compute shader
 # keeping them packed is convenient for that purpose
 var boid_positions: PackedVector2Array = PackedVector2Array([])
@@ -29,7 +30,8 @@ var boid_targets: PackedVector2Array = PackedVector2Array([])
 # binding locations for each uniform
 const POSITION_UNIFORM_BINDING = 0
 const VELOCITY_UNIFORM_BINDING = 1
-const UNIFORMS_UNIFORM_BINDING = 2
+const AVOIDANCE_UNIFORM_BINDING = 2
+const UNIFORMS_UNIFORM_BINDING = 3
 
 # compute shader resources
 var device: RenderingDevice
@@ -39,6 +41,8 @@ var boid_positions_buffer: RID
 var boid_positions_uniform: RDUniform
 var boid_velocities_buffer: RID
 var boid_velocities_uniform: RDUniform
+var avoidance_objects_buffer: RID
+var avoidance_objects_uniform: RDUniform
 var boid_uniforms_buffer: RID
 var boid_uniforms_uniform: RDUniform # this name is terrible, why did I call it this?
 var bindings: Array[RDUniform]
@@ -59,6 +63,7 @@ func create_boid_uniforms_buffer(delta: float) -> RID:
 	# NOTE: these should be filled out in the SAME ORDER as specified in the compute shader!
 	return create_float_buffer([
 		float(boid_objects.size()),
+		float(avoidance_objects.size()),
 		max_speed,
 		boundaries.x,
 		boundaries.y,
@@ -71,6 +76,34 @@ func create_boid_uniforms_buffer(delta: float) -> RID:
 		cohesion_weight,
 		delta
 	])
+
+func setup_avoidance_uniform() -> void: 
+	avoidance_objects_uniform = create_empty_uniform(RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER, AVOIDANCE_UNIFORM_BINDING)
+	
+	# make a byte array for the avoidance objects
+	# omfg i need to handle BYTE ALIGNMENT in GDSCRIPT
+	# structure of the shader's AvoidanceObject struct:
+	#	vec2 position
+	#	float major_radius
+	#	float minor_radius
+	# floats are 32 bits each, and vec2s are 64 bits each (two floats)
+	# conveniently, this makes each AvoidanceObject 128 bits (16 bytes)
+	# and they align tightly
+	var floats_buffer: Array[float] = []
+	floats_buffer.resize(max(avoidance_objects.size() * 4, 4))
+	
+	for i in range(avoidance_objects.size()):
+		var buffer_index: int = i * 4
+		var curr_object: CircleAvoidancePoint = avoidance_objects[i]
+		floats_buffer[buffer_index] = curr_object.global_position.x
+		floats_buffer[buffer_index + 1] = curr_object.global_position.y
+		floats_buffer[buffer_index + 2] = curr_object.major_radius
+		floats_buffer[buffer_index + 3] = curr_object.minor_radius
+		print("adding avoidance object at", floats_buffer[buffer_index], ", ", floats_buffer[buffer_index + 1],
+		" with ", floats_buffer[buffer_index + 2], floats_buffer[buffer_index + 3])
+	
+	avoidance_objects_buffer = create_float_buffer(floats_buffer)
+	set_uniform(avoidance_objects_uniform, avoidance_objects_buffer)
 
 func create_uniform(resource: RID, type: RenderingDevice.UniformType, binding: int) -> RDUniform:
 	var uniform = RDUniform.new()
@@ -97,7 +130,9 @@ func setup_bindings() -> void:
 	boid_velocities_uniform = create_empty_uniform(RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER, VELOCITY_UNIFORM_BINDING)
 	boid_uniforms_uniform = create_empty_uniform(RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER, UNIFORMS_UNIFORM_BINDING)
 	
-	bindings = [boid_positions_uniform, boid_velocities_uniform, boid_uniforms_uniform]
+	setup_avoidance_uniform()
+	
+	bindings = [boid_positions_uniform, boid_velocities_uniform, avoidance_objects_uniform, boid_uniforms_uniform]
 
 func set_uniform(uniform: RDUniform, resource: RID) -> void:
 	var to_clear = uniform.get_ids()
@@ -199,8 +234,14 @@ func spawn_some_boids(boids_to_spawn, spacing) -> void:
 		queue_add_boid(b)
 	print("all boids are added")
 
+func set_avoidance_objects() -> void:
+	for child: CircleAvoidancePoint in $AvoidanceObjects.get_children():
+		avoidance_objects.append(child)
+
 func _ready() -> void:
 	instance = self
+	
+	set_avoidance_objects()
 	
 	setup_compute_shaders()
 	setup_bindings()

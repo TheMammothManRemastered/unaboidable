@@ -26,12 +26,22 @@ layout(set = 0, binding = 1, std430) buffer VelocityBuffer {
     vec2 data[];
 } boid_velocities;
 
+struct AvoidanceObject {
+    vec2 position;
+    float major_radius;
+    float minor_radius;
+};
+layout(set = 0, binding = 2, std430) buffer AvoidanceObjectBuffer {
+    AvoidanceObject data[];
+} avoidance_objects;
+
 // honestly a majority of this never changes, yet we resend the whole thing every frame
 // I'm not experienced enough in GPU programming to know if this is actually a major
 // performance impact (I suspect it isn't), but splitting this up might not be a bad idea.
 // maybe put the immutable stuff in set 1?
-layout(set = 0, binding = 2, std430) buffer UniformsBuffer {
+layout(set = 0, binding = 3, std430) buffer UniformsBuffer {
     float num_boids;
+    float num_avoidance_objects;
     float max_speed;
     float boundary_x;
     float boundary_y;
@@ -146,8 +156,30 @@ vec2 calculate_separation_vector() {
     return separation_vector * uniforms.separation_weight;
 }
 
+vec2 calculate_avoidance_object_vector() {
+    vec2 avoidance_object_vector = vec2(0.0, 0.0);
+    int n = 0;
+
+    for (int i = 0; i < uniforms.num_avoidance_objects; i++) {
+        float distance = distance(CURR_BOID_POSITION, avoidance_objects.data[i].position);
+        if (distance < avoidance_objects.data[i].minor_radius) {
+            vec2 direction_away = CURR_BOID_POSITION - avoidance_objects.data[i].position;
+            avoidance_object_vector += direction_away / (max(avoidance_objects.data[i].major_radius, 0.0) - CURR_BOID_POSITION);
+            n++;
+        }
+    }
+
+    if (n > 0) {
+        avoidance_object_vector /= float(n);
+    }
+
+    return avoidance_object_vector * 20.0;
+}
+
 void main() {
-    boid_velocities.data[BOID_INDEX] += calculate_boundary_vector() + calculate_cohesion_vector() + calculate_alignment_vector() + calculate_separation_vector();
+    boid_velocities.data[BOID_INDEX] += calculate_boundary_vector() + calculate_cohesion_vector()
+        + calculate_alignment_vector() + calculate_separation_vector()
+        + calculate_avoidance_object_vector();
 
     cap_speed();
 
