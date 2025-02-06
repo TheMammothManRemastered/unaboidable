@@ -1,52 +1,17 @@
-[gd_scene load_steps=21 format=3 uid="uid://btmg41ucp5akp"]
+[gd_scene load_steps=15 format=3 uid="uid://btmg41ucp5akp"]
 
 [ext_resource type="Texture2D" uid="uid://ckmk0u2ts2ett" path="res://art/paper_bg.png" id="1_flfn5"]
-[ext_resource type="Shader" path="res://art/marker.gdshader" id="2_pylqc"]
-[ext_resource type="Texture2D" uid="uid://bagnkt67v3352" path="res://art/marker_texture_black.png" id="3_j3mcp"]
-[ext_resource type="Texture2D" uid="uid://bnbsv7xt2soxi" path="res://world/floor.png" id="4_dxxqf"]
+[ext_resource type="PackedScene" uid="uid://l26qgmbk7l7l" path="res://art/scribble/scribble_group.tscn" id="3_4h5r8"]
+[ext_resource type="PackedScene" uid="uid://dnkihiuu2628t" path="res://art/line_art/scribbled_line.tscn" id="4_6c47e"]
 [ext_resource type="PackedScene" uid="uid://bd52wxgkn7xto" path="res://player/player.tscn" id="5_o3l85"]
-[ext_resource type="Texture2D" uid="uid://4cm83li2agbv" path="res://art/bg_border1.png" id="6_mrhn8"]
-[ext_resource type="Texture2D" uid="uid://y53hj5to4p3l" path="res://art/bg_border2.png" id="7_iaibe"]
-[ext_resource type="Texture2D" uid="uid://cwhbasrqf4vqk" path="res://art/bg_border3.png" id="8_su2u6"]
+[ext_resource type="Texture2D" uid="uid://4cm83li2agbv" path="res://art/paper_border/bg_border1.png" id="6_mrhn8"]
+[ext_resource type="Texture2D" uid="uid://y53hj5to4p3l" path="res://art/paper_border/bg_border2.png" id="7_iaibe"]
+[ext_resource type="Texture2D" uid="uid://cwhbasrqf4vqk" path="res://art/paper_border/bg_border3.png" id="8_su2u6"]
 [ext_resource type="Texture2D" uid="uid://bqetlawthccqm" path="res://art/lighting_overlay.png" id="9_7ulir"]
 [ext_resource type="Script" path="res://art/lighting_overlay.gd" id="10_pxwgn"]
+[ext_resource type="PackedScene" uid="uid://ocxj8tt81w8w" path="res://camera/main_cam.tscn" id="11_ms1ph"]
 
 [sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_pybsb"]
-
-[sub_resource type="FastNoiseLite" id="FastNoiseLite_q35dp"]
-frequency = 0.0051
-
-[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_ai8ok"]
-seamless = true
-noise = SubResource("FastNoiseLite_q35dp")
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_re8hb"]
-shader = ExtResource("2_pylqc")
-shader_parameter/noise_scale = 0.003
-shader_parameter/noise_texture = SubResource("NoiseTexture2D_ai8ok")
-shader_parameter/marker_texture = ExtResource("3_j3mcp")
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_28dom"]
-atlas = ExtResource("4_dxxqf")
-region = Rect2(0, 0, 1908, 97)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_psukg"]
-atlas = ExtResource("4_dxxqf")
-region = Rect2(0, 97, 1908, 97)
-
-[sub_resource type="SpriteFrames" id="SpriteFrames_65bqn"]
-animations = [{
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_28dom")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_psukg")
-}],
-"loop": true,
-"name": &"default",
-"speed": 6.0
-}]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_lchyn"]
 atlas = ExtResource("6_mrhn8")
@@ -78,22 +43,33 @@ blend_mode = 3
 position = Vector2(525, 288)
 texture = ExtResource("1_flfn5")
 
-[node name="Floor" type="StaticBody2D" parent="."]
+[node name="Walls" type="StaticBody2D" parent="."]
 position = Vector2(568, 602)
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Floor"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Walls"]
 shape = SubResource("WorldBoundaryShape2D_pybsb")
 
-[node name="CanvasGroup" type="CanvasGroup" parent="."]
-material = SubResource("ShaderMaterial_re8hb")
-position = Vector2(681, 370)
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="Walls"]
+position = Vector2(-1015, -497)
+rotation = 1.5708
+shape = SubResource("WorldBoundaryShape2D_pybsb")
 
-[node name="Floor" type="AnimatedSprite2D" parent="CanvasGroup"]
-position = Vector2(-118, 234)
-scale = Vector2(0.558021, 0.558021)
-sprite_frames = SubResource("SpriteFrames_65bqn")
-autoplay = "default"
-frame_progress = 0.203264
+[node name="CollisionShape2D3" type="CollisionShape2D" parent="Walls"]
+position = Vector2(1047, -501)
+rotation = 4.71239
+shape = SubResource("WorldBoundaryShape2D_pybsb")
+
+[node name="CollisionShape2D4" type="CollisionShape2D" parent="Walls"]
+position = Vector2(22, -1173)
+rotation = 3.14159
+shape = SubResource("WorldBoundaryShape2D_pybsb")
+
+[node name="ScribbleGroup" parent="." instance=ExtResource("3_4h5r8")]
+
+[node name="Line2D" parent="ScribbleGroup" instance=ExtResource("4_6c47e")]
+points = PackedVector2Array(-1118, 227, 936, 218, 930, -940, -1130, -939)
+closed = true
+width = 70.0
 
 [node name="Player" parent="." instance=ExtResource("5_o3l85")]
 position = Vector2(437, 269)
@@ -114,13 +90,18 @@ material = SubResource("CanvasItemMaterial_eflm1")
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -453.0
-offset_top = -255.0
-offset_right = 454.0
-offset_bottom = 255.0
+offset_left = -503.0
+offset_top = -160.0
+offset_right = 404.0
+offset_bottom = 350.0
 grow_horizontal = 2
 grow_vertical = 2
 pivot_offset = Vector2(1000, 600)
 texture = ExtResource("9_7ulir")
 expand_mode = 1
 script = ExtResource("10_pxwgn")
+
+[node name="MainCam" parent="." instance=ExtResource("11_ms1ph")]
+position = Vector2(576, 25)
+zoom = Vector2(0.5, 0.5)
+player_influence = 0.02
