@@ -5,6 +5,7 @@ const ACCEL := 4000.0
 const MAX_WALK := 750.0
 const GROUND_DECEL := 6000.0
 const AIR_DECEL := 4000.0
+const JUMP_CHARGE_DECEL := 1500.0
 
 const GRAVITY_FAST   := 4080.0
 const GRAVITY_NORMAL := 2800.0
@@ -22,10 +23,11 @@ var delayed_squish = squish
 var facing_direction := +1 ## -1 if facing left, +1 if facing right
 
 ##- Nodes -##
-@onready var visuals: Node2D = $Visuals
-@onready var jump_particles: CPUParticles2D = $Node/CanvasGroup/JumpParticles
+@onready var visuals: Node2D = %Visuals
+@onready var jump_particles: CPUParticles2D = %JumpParticles
+@onready var player_sprite: AnimatedSprite2D = %PlayerSprite
 
-func _physics_process(delta: float) -> void:
+func _process(delta: float) -> void:
 	# Add the gravity.
 	if not is_on_floor():
 		var gravity = GRAVITY_FAST if Input.is_action_pressed("move_down") else GRAVITY_NORMAL
@@ -41,7 +43,8 @@ func _physics_process(delta: float) -> void:
 		jump_particles.restart()
 	
 	# 	- jump charge
-	if Input.is_action_pressed("jump") and is_on_floor():
+	var is_charging_jump = Input.is_action_pressed("jump") and is_on_floor()
+	if is_charging_jump:
 		jump_charge_time += delta
 		var jump_progress = min(jump_charge_time / JUMP_MAX_CHARGE_TIME, 1.0)
 		squish = lerp(1.0, 0.7, jump_progress)
@@ -51,20 +54,28 @@ func _physics_process(delta: float) -> void:
 
 	# Get the input direction and handle the movement/deceleration.
 	var direction := Input.get_axis("move_left", "move_right")
-	if direction != 0:
+	if direction != 0 and not is_charging_jump:
 		# instant reverse
-		if is_on_floor() and not Input.is_action_pressed("jump"):
+		if is_on_floor() and not is_charging_jump:
 			if sign(velocity.x) != sign(direction): velocity.x *= -1
 		
 		velocity.x = move_toward(velocity.x, direction * MAX_WALK, ACCEL * delta)
 	else:
-		var decel = GROUND_DECEL if is_on_floor() else AIR_DECEL
+		var decel: float
+		if is_charging_jump: decel = JUMP_CHARGE_DECEL
+		elif is_on_floor(): decel = GROUND_DECEL
+		else: decel = AIR_DECEL
+		
 		velocity.x = move_toward(velocity.x, 0, decel * delta)
 	
 	# facing direction
 	if is_on_floor():
 		if velocity.x < 0: facing_direction = -1
 		elif velocity.x > 0: facing_direction = +1
+	
+	# set current animation
+	var animation_track = get_current_animation()
+	if player_sprite.animation != animation_track: player_sprite.play(animation_track)
 	
 	# squash and stretch
 	if not is_on_floor():
@@ -77,3 +88,17 @@ func _physics_process(delta: float) -> void:
 	visuals.scale.x *= facing_direction
 
 	move_and_slide()
+
+func get_current_animation() -> String:
+	if is_on_floor():
+		if Input.is_action_pressed("jump"):
+			return "crouch"
+		if abs(velocity.x) > 0:
+			return "run"
+		else:
+			return "idle"
+	else:
+		if abs(velocity.y) < 0:
+			return "rising"
+		else:
+			return "falling"
