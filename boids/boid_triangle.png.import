@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bagnkt67v3352"
-path="res://.godot/imported/marker_texture_black.png-8aee6da802600bb61c609a502aed82e8.ctex"
+uid="uid://dyti57kj53o1b"
+path="res://.godot/imported/boid_triangle.png-5a9c56da0e2a1cd5b1612446cf5fb2a7.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://art/marker_texture_black.png"
-dest_files=["res://.godot/imported/marker_texture_black.png-8aee6da802600bb61c609a502aed82e8.ctex"]
+source_file="res://boids/boid_triangle.png"
+dest_files=["res://.godot/imported/boid_triangle.png-5a9c56da0e2a1cd5b1612446cf5fb2a7.ctex"]
 
 [params]
 

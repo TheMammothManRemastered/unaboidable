@@ -1,0 +1,95 @@
+[gd_scene load_steps=9 format=3 uid="uid://dsne66h4wu4po"]
+
+[ext_resource type="Script" path="res://boids/debug_boid_spawn.gd" id="2_fy16j"]
+[ext_resource type="Script" path="res://boids/circle_avoidance_point.gd" id="3_2lyw8"]
+[ext_resource type="Texture2D" uid="uid://cjfyjg6kacc85" path="res://player/player_test.png" id="3_m2lc5"]
+[ext_resource type="Script" path="res://boids/swarm_overlord.gd" id="3_nuwsc"]
+[ext_resource type="Texture2D" uid="uid://dkh2girwy5yux" path="res://player/sprites/player_full_reference.png" id="4_flit2"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_vdg70"]
+radius = 237.034
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_vf2mp"]
+radius = 140.057
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_gyofi"]
+radius = 204.0
+
+[node name="BoidTest" type="Node2D"]
+script = ExtResource("2_fy16j")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+zoom = Vector2(0.4, 0.4)
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+metadata/_edit_use_anchors_ = true
+
+[node name="Button" type="Button" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 2
+text = "Get Boidin'"
+
+[node name="Button2" type="Button" parent="HBoxContainer"]
+layout_mode = 2
+text = "Clear Goal"
+
+[node name="Button3" type="Button" parent="HBoxContainer"]
+layout_mode = 2
+text = "Kill All Boids"
+
+[node name="Goal1" type="Node2D" parent="."]
+position = Vector2(-1053, 345)
+
+[node name="Button" type="Button" parent="Goal1"]
+offset_right = 8.0
+offset_bottom = 8.0
+text = "Goal 1"
+
+[node name="Goal2" type="Node2D" parent="."]
+position = Vector2(651, -180)
+
+[node name="Button" type="Button" parent="Goal2"]
+offset_right = 8.0
+offset_bottom = 8.0
+text = "Goal 2"
+
+[node name="SwarmOverlord" type="Node2D" parent="."]
+script = ExtResource("3_nuwsc")
+max_speed = 300.0
+boundaries = Vector2(1000, 750)
+
+[node name="CanvasGroup" type="CanvasGroup" parent="SwarmOverlord"]
+
+[node name="AvoidanceObjects" type="Node2D" parent="SwarmOverlord"]
+
+[node name="AvoidancePoint" type="Node2D" parent="SwarmOverlord/AvoidanceObjects"]
+position = Vector2(828, 452)
+script = ExtResource("3_2lyw8")
+
+[node name="MinorRadius" type="CollisionShape2D" parent="SwarmOverlord/AvoidanceObjects/AvoidancePoint"]
+shape = SubResource("CircleShape2D_vdg70")
+disabled = true
+
+[node name="MajorRadius" type="CollisionShape2D" parent="SwarmOverlord/AvoidanceObjects/AvoidancePoint"]
+shape = SubResource("CircleShape2D_vf2mp")
+
+[node name="Sprite2D" type="Sprite2D" parent="SwarmOverlord/AvoidanceObjects/AvoidancePoint"]
+texture = ExtResource("3_m2lc5")
+
+[node name="Player_renameme" type="CharacterBody2D" parent="."]
+position = Vector2(-517.54, -106.276)
+collision_layer = 256
+collision_mask = 8
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Player_renameme"]
+position = Vector2(53.54, 38.276)
+shape = SubResource("CircleShape2D_gyofi")
+
+[node name="Sprite2D" type="Sprite2D" parent="Player_renameme"]
+texture = ExtResource("4_flit2")
+
+[connection signal="pressed" from="HBoxContainer/Button" to="." method="_on_pressed"]

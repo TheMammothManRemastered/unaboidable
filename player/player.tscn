@@ -1,11 +1,12 @@
-[gd_scene load_steps=21 format=3 uid="uid://bd52wxgkn7xto"]
+[gd_scene load_steps=23 format=3 uid="uid://bd52wxgkn7xto"]
 
 [ext_resource type="Script" path="res://player/player.gd" id="1_qpvai"]
-[ext_resource type="Shader" path="res://art/marker.gdshader" id="2_k7hww"]
-[ext_resource type="Texture2D" uid="uid://bagnkt67v3352" path="res://art/marker_texture_black.png" id="3_8mfqh"]
+[ext_resource type="Shader" path="res://art/scribble/marker.gdshader" id="2_k7hww"]
+[ext_resource type="Texture2D" uid="uid://bagnkt67v3352" path="res://art/scribble/marker_texture_black.png" id="3_8mfqh"]
 [ext_resource type="Texture2D" uid="uid://dqjumfl4bubme" path="res://player/sprites/jump/crouch0.png" id="4_cwkpo"]
 [ext_resource type="Texture2D" uid="uid://b2tyq2jmtaais" path="res://player/sprites/running/run0.png" id="4_hbmp4"]
 [ext_resource type="Texture2D" uid="uid://gyvx3b5anfg2" path="res://player/sprites/idle/idle0.png" id="4_jd6u2"]
+[ext_resource type="PackedScene" uid="uid://l26qgmbk7l7l" path="res://art/scribble/scribble_group.tscn" id="5_gfe0u"]
 [ext_resource type="Texture2D" uid="uid://cg701namy701y" path="res://player/sprites/jump/crouch1.png" id="5_srll3"]
 [ext_resource type="Texture2D" uid="uid://d3v5vrppjeapy" path="res://player/sprites/running/run1.png" id="5_wo4hc"]
 [ext_resource type="Texture2D" uid="uid://boxoxsvmaoxrx" path="res://player/sprites/running/run2.png" id="6_4nqqa"]
@@ -88,7 +89,11 @@ point_count = 1
 _data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
 point_count = 2
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_bnf15"]
+size = Vector2(28, 161)
+
 [node name="Player" type="CharacterBody2D"]
+collision_layer = 2
 script = ExtResource("1_qpvai")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
@@ -103,19 +108,17 @@ material = SubResource("ShaderMaterial_re8hb")
 
 [node name="PlayerSprite" type="AnimatedSprite2D" parent="Visuals/CanvasGroup"]
 unique_name_in_owner = true
-position = Vector2(0, -103)
+position = Vector2(0, -108)
 scale = Vector2(0.483371, 0.483371)
 sprite_frames = SubResource("SpriteFrames_7keir")
 animation = &"crouch"
 autoplay = "idle"
 
-[node name="Node" type="Node" parent="."]
+[node name="Particles" parent="." instance=ExtResource("5_gfe0u")]
 
-[node name="CanvasGroup" type="CanvasGroup" parent="Node"]
-material = SubResource("ShaderMaterial_re8hb")
-
-[node name="JumpParticles" type="CPUParticles2D" parent="Node/CanvasGroup"]
+[node name="JumpParticles" type="CPUParticles2D" parent="Particles"]
 unique_name_in_owner = true
+position = Vector2(-681, -345)
 emitting = false
 amount = 4
 lifetime = 0.4
@@ -134,3 +137,49 @@ scale_amount_max = 0.5
 split_scale = true
 scale_curve_x = SubResource("Curve_b0aqu")
 scale_curve_y = SubResource("Curve_cm0hu")
+
+[node name="WallJumpParticles" type="CPUParticles2D" parent="Particles"]
+unique_name_in_owner = true
+position = Vector2(-681, -449)
+emitting = false
+amount = 4
+lifetime = 0.4
+one_shot = true
+explosiveness = 1.0
+fixed_fps = 12
+texture = SubResource("GradientTexture2D_kspvi")
+emission_shape = 4
+emission_points = PackedVector2Array(-100, 0)
+emission_colors = PackedColorArray()
+particle_flag_align_y = true
+spread = 55.91
+gravity = Vector2(0, 900)
+initial_velocity_min = 191.92
+initial_velocity_max = 292.93
+scale_amount_min = 0.3
+scale_amount_max = 0.5
+split_scale = true
+scale_curve_x = SubResource("Curve_b0aqu")
+scale_curve_y = SubResource("Curve_cm0hu")
+
+[node name="WallAreas" type="Node2D" parent="."]
+
+[node name="LeftWallArea" type="Area2D" parent="WallAreas"]
+unique_name_in_owner = true
+position = Vector2(-48, -83)
+collision_layer = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WallAreas/LeftWallArea"]
+position = Vector2(0, 2.5)
+shape = SubResource("RectangleShape2D_bnf15")
+debug_color = Color(0, 0.632114, 0.454988, 0.42)
+
+[node name="RightWallArea" type="Area2D" parent="WallAreas"]
+unique_name_in_owner = true
+position = Vector2(48, -83)
+collision_layer = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WallAreas/RightWallArea"]
+position = Vector2(0, 2.5)
+shape = SubResource("RectangleShape2D_bnf15")
+debug_color = Color(0, 0.632114, 0.454988, 0.42)

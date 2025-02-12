@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://i10gux0h3nvj"
-path="res://.godot/imported/marker_texture.png-45776fdbf20252d4da77d53ddee282c6.ctex"
+uid="uid://60oi3lfdghh4"
+path="res://.godot/imported/line1.png-8e4dd9752a834487a95b322ed4a6169a.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://art/marker_texture.png"
-dest_files=["res://.godot/imported/marker_texture.png-45776fdbf20252d4da77d53ddee282c6.ctex"]
+source_file="res://art/line_art/line1.png"
+dest_files=["res://.godot/imported/line1.png-8e4dd9752a834487a95b322ed4a6169a.ctex"]
 
 [params]
 
