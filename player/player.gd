@@ -5,7 +5,8 @@ const ACCEL := 4000.0
 const MAX_WALK := 750.0
 const GROUND_DECEL := 6000.0
 const AIR_DECEL := 4000.0
-const JUMP_CHARGE_DECEL := 1500.0
+const JUMP_CHARGE_NORMAL_DECEL := 4000.0
+const JUMP_CHARGE_SLOW_DECEL := 1200.0
 
 const GRAVITY_FAST   := 4080.0
 const GRAVITY_NORMAL := 2800.0
@@ -27,6 +28,7 @@ var jump_charge_time := 0.0
 var squish = 1.0
 var delayed_squish = squish
 var facing_direction := +1 ## -1 if facing left, +1 if facing right
+var time_on_floor := 0.0
 
 ##- Nodes -##
 @onready var visuals: Node2D = %Visuals
@@ -63,22 +65,21 @@ func _process(delta: float) -> void:
 		squish = lerp(1.0, 0.7, jump_progress)
 	else:
 		jump_charge_time = 0.0
-		if is_on_floor(): squish = 1.0
 
 	# Get the input direction and handle the movement/deceleration.
 	var direction := Input.get_axis("move_left", "move_right")
-	if direction != 0 and not is_charging_jump:
+	if is_charging_jump:
+		var inputting_forwards = sign(direction) == sign(velocity.x)
+		var decel = JUMP_CHARGE_SLOW_DECEL if inputting_forwards else JUMP_CHARGE_NORMAL_DECEL
+		velocity.x = move_toward(velocity.x, 0, decel * delta)
+	elif direction != 0 and not is_charging_jump:
 		# instant reverse
-		if is_on_floor() and not is_charging_jump:
+		if is_on_floor():
 			if sign(velocity.x) != sign(direction): velocity.x *= -1
 		
 		velocity.x = move_toward(velocity.x, direction * MAX_WALK, ACCEL * delta)
 	else:
-		var decel: float
-		if is_charging_jump: decel = JUMP_CHARGE_DECEL
-		elif is_on_floor(): decel = GROUND_DECEL
-		else: decel = AIR_DECEL
-		
+		var decel = GROUND_DECEL if is_on_floor() else AIR_DECEL
 		velocity.x = move_toward(velocity.x, 0, decel * delta)
 	
 	# Wall jumps
@@ -89,6 +90,8 @@ func _process(delta: float) -> void:
 			var clinging = Input.is_action_pressed("move_left" if left_wall else "move_right")
 			var normal = +1 if left_wall else -1
 			
+			facing_direction = normal
+			
 			var min_fall = WALL_CLING_SPEED if clinging else WALL_SKID_SPEED
 			var decel = WALL_CLING_DECEL if clinging else WALL_SKID_DECEL
 			if velocity.y > min_fall:
@@ -96,47 +99,64 @@ func _process(delta: float) -> void:
 			
 			if Input.is_action_just_pressed("jump"):
 				wall_jump(normal)
-		
+	
 	# facing direction
 	if is_on_floor():
 		if velocity.x < 0: facing_direction = -1
 		elif velocity.x > 0: facing_direction = +1
 	
-	# set current animation
-	var animation_track = get_current_animation()
-	if player_sprite.animation != animation_track: player_sprite.play(animation_track)
+	# set current AnimatedSprite2D animation
+	set_animation()
 	
 	# squash and stretch
 	if not is_on_floor():
 		squish = 1 + abs(velocity.y) / 3000
+	else:
+		if squish > 1.0:
+			squish = 1.0 / squish
+		else:
+			squish = move_toward(squish, 1.0, delta)
 	
-	delayed_squish = move_toward(delayed_squish, squish, 5.0 * delta)
+	delayed_squish = lerp(delayed_squish, squish, 1 - exp(-15 * delta))
+	#delayed_squish = move_toward(delayed_squish, squish, 5.0 * delta)
 	
 	visuals.scale.y = delayed_squish
 	visuals.scale.x = 1 / delayed_squish
 	visuals.scale.x *= facing_direction
 
+	# time on floor
+	if is_on_floor(): time_on_floor += delta
+	else: time_on_floor = 0.0
+
+	# finalize
 	move_and_slide()
 
-func get_current_animation() -> String:
+func set_animation() -> void:
+	var on_wall = left_wall_area.has_overlapping_bodies() or right_wall_area.has_overlapping_bodies()
+	
 	if is_on_floor():
 		if Input.is_action_pressed("jump"):
-			return "crouch"
-		if abs(velocity.x) > 0:
-			return "run"
+			player_sprite.play("crouch")
+			player_sprite.frame = 0 if jump_charge_time < JUMP_MAX_CHARGE_TIME else 1
+		elif abs(velocity.x) > 0:
+			player_sprite.play("run")
 		else:
-			return "idle"
+			player_sprite.play("idle")
 	else:
-		if abs(velocity.y) < 0:
-			return "rising"
+		if on_wall:
+			player_sprite.play("wall")
 		else:
-			return "falling"
+			player_sprite.animation = "jump"
+			if velocity.y < -500: player_sprite.frame = 0
+			elif velocity.y < -200: player_sprite.frame = 1
+			elif velocity.y < 200: player_sprite.frame = 2
+			elif velocity.y < 500: player_sprite.frame = 3
+			else: player_sprite.frame = 4
 
 func wall_jump(normal: int) -> void:
 	velocity.x = WALL_JUMP_SPEED.x * normal
 	if velocity.y > 0: velocity.y = 0
 	velocity.y -= WALL_JUMP_SPEED.y
-	facing_direction = normal
 	
 	wall_jump_particles.scale.x = normal
 	wall_jump_particles.restart()
