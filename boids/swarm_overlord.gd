@@ -41,6 +41,8 @@ var boid_positions_buffer: RID
 var boid_positions_uniform: RDUniform
 var boid_velocities_buffer: RID
 var boid_velocities_uniform: RDUniform
+var boid_goals_buffer: RID
+var boid_goals_uniform: RDUniform
 var avoidance_objects_buffer: RID
 var avoidance_objects_uniform: RDUniform
 var boid_uniforms_buffer: RID
