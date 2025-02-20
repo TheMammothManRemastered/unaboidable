@@ -29,6 +29,8 @@ var squish = 1.0
 var delayed_squish = squish
 var facing_direction := +1 ## -1 if facing left, +1 if facing right
 var time_on_floor := 0.0
+var gravity_scale := 1.0
+var active_coroutine: PlayerCoroutines
 
 ##- Nodes -##
 @onready var visuals: Node2D = %Visuals
@@ -47,7 +49,7 @@ func _process(delta: float) -> void:
 	# Add the gravity.
 	if not is_on_floor():
 		var gravity = GRAVITY_FAST if Input.is_action_pressed("move_down") else GRAVITY_NORMAL
-		velocity.y += gravity * delta
+		velocity.y += gravity * gravity_scale * delta
 
 	# Handle jump.
 	# 	- jump release
@@ -105,6 +107,13 @@ func _process(delta: float) -> void:
 		if velocity.x < 0: facing_direction = -1
 		elif velocity.x > 0: facing_direction = +1
 	
+	# attacks
+	if Input.is_action_just_pressed("primary"):
+		if Input.is_action_pressed("move_down"):
+			new_coroutine().dive_attack()
+		else:
+			new_coroutine().main_attack()
+	
 	# set current AnimatedSprite2D animation
 	set_animation()
 	
@@ -160,3 +169,14 @@ func wall_jump(normal: int) -> void:
 	
 	wall_jump_particles.scale.x = normal
 	wall_jump_particles.restart()
+
+func new_coroutine() -> PlayerCoroutines:
+	if active_coroutine != null:
+		active_coroutine.queue_free()
+	
+	var co = Node.new()
+	add_child(co)
+	co.set_script(preload("player_coroutines.gd"))
+	co.player = self
+	active_coroutine = co
+	return co
