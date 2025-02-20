@@ -8,8 +8,8 @@ size = Vector2(24, 37)
 
 [node name="Boid" type="Area2D"]
 scale = Vector2(2.38496, 2.38496)
-collision_layer = 8
-collision_mask = 256
+collision_layer = 4
+collision_mask = 2
 script = ExtResource("1_tldlb")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]

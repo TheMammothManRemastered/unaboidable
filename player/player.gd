@@ -160,3 +160,6 @@ func wall_jump(normal: int) -> void:
 	
 	wall_jump_particles.scale.x = normal
 	wall_jump_particles.restart()
+
+func hurt(damage: int = 1) -> void:
+	print("ouch!")
