@@ -3,7 +3,7 @@ class_name SimpleBoid
 
 # NOTE: these all need to be defined in any class that extends Boid
 # there's 10000% a better way to do this, fix that lol
-static var max_speed: float = 500.0
+static var max_speed: float = 70.0
 static var separation_radius: float = 40
 static var separation_weight: float = 30
 static var alignment_radius: float = 75

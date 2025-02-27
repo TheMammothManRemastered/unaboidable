@@ -115,7 +115,7 @@ vec2 calculate_cohesion_vector() { // cohesion stage - boids try to move towards
             continue;
         }
         if (IMMUTABLE_TYPED(discriminatory) > 0.0 && BOID_TYPE(i) != CURR_BOID_TYPE) {
-            continue;
+            //continue;
         }
 
         float distance = distance(BOID_POSITION(i), CURR_BOID_POSITION);
@@ -143,7 +143,7 @@ vec2 calculate_alignment_vector() { // alignment stage - boids try to match the 
             continue;
         }
         if (IMMUTABLE_TYPED(discriminatory) > 0.0 && BOID_TYPE(i) != CURR_BOID_TYPE) {
-            continue;
+            //continue;
         }
 
         float distance = distance(CURR_BOID_POSITION, BOID_POSITION(i));
