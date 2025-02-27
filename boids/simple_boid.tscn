@@ -1,4 +1,4 @@
-[gd_scene load_steps=4 format=3 uid="uid://btwuenqrf8lap"]
+[gd_scene load_steps=4 format=3 uid="uid://c6owoqeihiknf"]
 
 [ext_resource type="Script" path="res://boids/simple_boid.gd" id="1_jhfqx"]
 [ext_resource type="Texture2D" uid="uid://dyti57kj53o1b" path="res://boids/boid_triangle.png" id="2_8jv5m"]
@@ -7,6 +7,7 @@
 size = Vector2(24, 37)
 
 [node name="SimpleBoid" type="Area2D"]
+scale = Vector2(2.385, 2.385)
 script = ExtResource("1_jhfqx")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
