@@ -180,6 +180,21 @@ vec2 calculate_avoidance_object_vector() {
     return avoidance_object_vector * 20.0;
 }
 
+vec2 calculate_goal_vector() {
+    vec2 goal_vector = vec2(0.0, 0.0);
+    float goal_weight = 20.0;
+
+    goal_vector = normalize(CURR_BOID_POSITION - goal_vector);
+
+    return goal_vector * goal_weight;
+}
+
+// multiple avoidance areas idea
+// similar way to how avoidance objects are pushed in
+// give rectangular border sizes around a point
+// as well as a weight for each
+// can allow for nice preemptive steer away from walls behaviour
+
 void main() {
     boid_velocities.data[BOID_INDEX] += calculate_boundary_vector() + calculate_cohesion_vector()
         + calculate_alignment_vector() + calculate_separation_vector()

@@ -1,19 +1,20 @@
 [gd_scene load_steps=4 format=3 uid="uid://bunmrdnsiyrq"]
 
 [ext_resource type="Script" path="res://boids/boid.gd" id="1_tldlb"]
-[ext_resource type="Texture2D" uid="uid://cjfyjg6kacc85" path="res://player/player_test.png" id="2_0on6q"]
+[ext_resource type="Texture2D" uid="uid://dyti57kj53o1b" path="res://boids/boid_triangle.png" id="2_2v36i"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_sps27"]
 size = Vector2(24, 37)
 
 [node name="Boid" type="Area2D"]
-collision_layer = 8
-collision_mask = 256
+scale = Vector2(2.38496, 2.38496)
+collision_layer = 4
+collision_mask = 2
 script = ExtResource("1_tldlb")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 scale = Vector2(0.165, 0.165)
-texture = ExtResource("2_0on6q")
+texture = ExtResource("2_2v36i")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, -0.5)

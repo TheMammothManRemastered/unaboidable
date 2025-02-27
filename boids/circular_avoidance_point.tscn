@@ -1,0 +1,23 @@
+[gd_scene load_steps=5 format=3 uid="uid://bsyv4xwd4rosy"]
+
+[ext_resource type="Script" path="res://boids/circle_avoidance_point.gd" id="1_25wjm"]
+[ext_resource type="Texture2D" uid="uid://cjfyjg6kacc85" path="res://player/player_test.png" id="2_0bgu4"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_vdg70"]
+radius = 237.034
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_vf2mp"]
+radius = 140.057
+
+[node name="AvoidancePoint" type="Node2D"]
+script = ExtResource("1_25wjm")
+
+[node name="MinorRadius" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_vdg70")
+disabled = true
+
+[node name="MajorRadius" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_vf2mp")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_0bgu4")
