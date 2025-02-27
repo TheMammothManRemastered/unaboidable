@@ -1,7 +1,7 @@
 [gd_scene load_steps=6 format=3 uid="uid://dsne66h4wu4po"]
 
 [ext_resource type="Script" path="res://boids/debug_boid_spawn.gd" id="2_fy16j"]
-[ext_resource type="PackedScene" path="res://boids/circular_avoidance_point.tscn" id="3_m8t57"]
+[ext_resource type="PackedScene" uid="uid://bsyv4xwd4rosy" path="res://boids/circular_avoidance_point.tscn" id="3_m8t57"]
 [ext_resource type="Script" path="res://boids/swarm_overlord.gd" id="3_nuwsc"]
 [ext_resource type="Texture2D" uid="uid://dkh2girwy5yux" path="res://player/sprites/player_full_reference.png" id="4_flit2"]
 

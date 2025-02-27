@@ -68,7 +68,6 @@ func create_boid_uniforms_buffer(delta: float) -> RID:
 	return create_float_buffer([
 		float(boid_objects.size()),
 		float(avoidance_objects.size()),
-		max_speed,
 		boundaries.x,
 		boundaries.y,
 		global_position.x,
@@ -90,8 +89,9 @@ func get_immutable_type_data(type: Object) -> Array[float]:
 	]
 
 func create_immutable_type_data_buffer() -> RID:
-	var out = get_immutable_type_data(SimpleBoid)
-	return out
+	var out: PackedFloat32Array = PackedFloat32Array(get_immutable_type_data(SimpleBoid))
+	var bytes: PackedByteArray = out.to_byte_array()
+	return device.storage_buffer_create(bytes.size(), bytes)
 
 func setup_avoidance_uniform() -> void: 
 	# make a byte array for the avoidance objects
@@ -138,7 +138,7 @@ func create_empty_uniform(type: RenderingDevice.UniformType, binding: int) -> RD
 
 func setup_compute_shaders() -> void:
 	device = RenderingServer.create_local_rendering_device()
-	var shader_file := load("res://boids/boid_compute_1.glsl")
+	var shader_file := load("res://boids/boid_compute_2.glsl")
 	var shader_spirv: RDShaderSPIRV = shader_file.get_spirv()
 	compute_shader = device.shader_create_from_spirv(shader_spirv)
 	compute_pipeline = device.compute_pipeline_create(compute_shader)
@@ -251,16 +251,16 @@ func process_queues() -> void:
 
 
 # this is a debug function
-var boid_scene = preload("res://boids/boid.tscn")
+var boid_scene = preload("res://boids/simple_boid.tscn")
 func spawn_some_boids(boids_to_spawn, spacing) -> void:
 	for i in range(boids_to_spawn):
-		var b: Boid = boid_scene.instantiate()
+		var b: SimpleBoid = boid_scene.instantiate()
 		b.global_position = Vector2(0, 0)
 		var w = spacing.x / 2.0
 		var h = spacing.y / 2.0
 		b.global_position.x += randf_range(-w, w)
 		b.global_position.y += randf_range(-h, h)
-		b.velocity = Vector2.from_angle(randf() * PI * 2.0) * (randf() * 100.0)
+		b.velocity = Vector2.from_angle(randf() * PI * 2.0) * (randf() * 20.0)
 		$CanvasGroup.add_child(b)
 		queue_add_boid(b)
 	print("all boids are added")
