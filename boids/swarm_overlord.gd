@@ -7,7 +7,7 @@ static var instance: SwarmOverlord
 
 var frame_count: int = 0
 var frames_per_swarm_synchronization: int = 3
-# set to true when the number of boids changes
+# set to true when the number of boids changes, will cause GPU synchronization if true
 var boids_out_of_date: bool = true
 # references to every boid we are overlord of
 var boid_objects: Array[Boid] = []
@@ -16,22 +16,18 @@ var avoidance_objects: Array[CircleAvoidancePoint] = []
 # keeping them packed is convenient for that purpose
 var boid_positions: PackedVector2Array = PackedVector2Array([])
 var boid_velocities: PackedVector2Array = PackedVector2Array([])
-var boid_targets: PackedVector2Array = PackedVector2Array([])
+var boid_types: PackedInt32Array = PackedInt32Array([])
 # uniform values to be sent to the compute shader
 @export var max_speed: float = 500.0
 @export var boundaries: Vector2 = Vector2(600, 300)
 @export var boundary_weight: float = 35
-@export var separation_radius: float = 40
-@export var separation_weight: float = 30
-@export var alignment_radius: float = 75
-@export var alignment_weight: float = 0.2
-@export var cohesion_radius: float = 150
-@export var cohesion_weight: float = 0.15
-# binding locations for each uniform
+# binding locations for each uniform, ensure this matches the compute shader source
 const POSITION_UNIFORM_BINDING = 0
 const VELOCITY_UNIFORM_BINDING = 1
-const AVOIDANCE_UNIFORM_BINDING = 2
-const UNIFORMS_UNIFORM_BINDING = 3
+const TYPE_UNIFORM_BINDING = 2
+const AVOIDANCE_UNIFORM_BINDING = 3
+const UNIFORMS_UNIFORM_BINDING = 4
+const IMMUTABLE_TYPE_DATA_UNIFORM_BINDING = 5
 
 # compute shader resources
 var device: RenderingDevice
@@ -41,12 +37,14 @@ var boid_positions_buffer: RID
 var boid_positions_uniform: RDUniform
 var boid_velocities_buffer: RID
 var boid_velocities_uniform: RDUniform
-var boid_goals_buffer: RID
-var boid_goals_uniform: RDUniform
+var boid_types_buffer: RID
+var boid_types_uniform: RDUniform
 var avoidance_objects_buffer: RID
 var avoidance_objects_uniform: RDUniform
 var boid_uniforms_buffer: RID
 var boid_uniforms_uniform: RDUniform # this name is terrible, why did I call it this?
+var immutable_type_data_buffer: RID
+var immutable_type_data_uniform: RDUniform
 var bindings: Array[RDUniform]
 var uniform_set: RID
 
@@ -61,6 +59,10 @@ func create_float_buffer(array: Array[float]) -> RID:
 	var bytes: PackedByteArray = PackedFloat32Array(array).to_byte_array()
 	return device.storage_buffer_create(bytes.size(), bytes)
 
+func create_int32_buffer(packed_array: PackedInt32Array) -> RID:
+	var bytes: PackedByteArray = packed_array.to_byte_array()
+	return device.storage_buffer_create(bytes.size(), bytes)
+
 func create_boid_uniforms_buffer(delta: float) -> RID:
 	# NOTE: these should be filled out in the SAME ORDER as specified in the compute shader!
 	return create_float_buffer([
@@ -72,14 +74,24 @@ func create_boid_uniforms_buffer(delta: float) -> RID:
 		global_position.x,
 		global_position.y,
 		boundary_weight,
-		separation_radius,
-		separation_weight,
-		alignment_radius,
-		alignment_weight,
-		cohesion_radius,
-		cohesion_weight,
 		delta
 	])
+
+func get_immutable_type_data(type: Object) -> Array[float]:
+	return [
+		type.max_speed,
+		type.separation_radius,
+		type.separation_weight,
+		type.alignment_radius,
+		type.alignment_weight,
+		type.cohesion_radius,
+		type.cohesion_weight,
+		1.0 if type.discriminatory else 0.0
+	]
+
+func create_immutable_type_data_buffer() -> RID:
+	var out = get_immutable_type_data(SimpleBoid)
+	return out
 
 func setup_avoidance_uniform() -> void: 
 	# make a byte array for the avoidance objects
@@ -107,6 +119,10 @@ func setup_avoidance_uniform() -> void:
 	avoidance_objects_buffer = create_float_buffer(floats_buffer)
 	avoidance_objects_uniform = create_uniform(avoidance_objects_buffer, RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER, AVOIDANCE_UNIFORM_BINDING)
 
+func setup_immutable_type_data_uniform() -> void:
+	immutable_type_data_buffer = create_immutable_type_data_buffer()
+	immutable_type_data_uniform = create_uniform(immutable_type_data_buffer, RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER, IMMUTABLE_TYPE_DATA_UNIFORM_BINDING)
+
 func create_uniform(resource: RID, type: RenderingDevice.UniformType, binding: int) -> RDUniform:
 	var uniform = RDUniform.new()
 	uniform.uniform_type = type
@@ -131,10 +147,12 @@ func setup_bindings() -> void:
 	boid_positions_uniform = create_empty_uniform(RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER, POSITION_UNIFORM_BINDING)
 	boid_velocities_uniform = create_empty_uniform(RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER, VELOCITY_UNIFORM_BINDING)
 	boid_uniforms_uniform = create_empty_uniform(RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER, UNIFORMS_UNIFORM_BINDING)
+	boid_types_uniform = create_empty_uniform(RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER, TYPE_UNIFORM_BINDING)
 	
 	setup_avoidance_uniform()
+	setup_immutable_type_data_uniform()
 	
-	bindings = [boid_positions_uniform, boid_velocities_uniform, avoidance_objects_uniform, boid_uniforms_uniform]
+	bindings = [boid_positions_uniform, boid_velocities_uniform, boid_types_uniform, avoidance_objects_uniform, boid_uniforms_uniform, immutable_type_data_uniform]
 
 func set_uniform(uniform: RDUniform, resource: RID) -> void:
 	var to_clear = uniform.get_ids()
@@ -153,6 +171,9 @@ func update_compute_data(delta: float) -> void:
 		
 		boid_velocities_buffer = create_vec2_buffer(boid_velocities)
 		set_uniform(boid_velocities_uniform, boid_velocities_buffer)
+		
+		boid_types_buffer = create_int32_buffer(boid_types)
+		set_uniform(boid_types_uniform, boid_types_buffer)
 		boids_out_of_date = false
 	
 	boid_uniforms_buffer = create_boid_uniforms_buffer(delta)
@@ -177,6 +198,8 @@ func retrieve_compute_data() -> void:
 	var velocities_bytes: PackedByteArray = device.buffer_get_data(boid_velocities_buffer)
 	var velocities_floats: PackedFloat32Array = velocities_bytes.to_float32_array()
 	
+	# types are never gonna get changed in-shader, nor will immutable type data, so we don't retrieve them
+	
 	for i in range(0, boid_objects.size()):
 		if (i * 2 >= positions_floats.size() or i * 2 >= velocities_floats.size()):
 			return
@@ -187,6 +210,9 @@ func retrieve_compute_data() -> void:
 		boid_positions[i] = curr_position
 		boid_velocities[i] = curr_velocity
 
+
+
+# QUEUE OPERATIONS - boid adding/removal is handled here
 var boid_add_queue = []
 var boid_remove_queue = []
 
@@ -200,6 +226,7 @@ func add_boid(b: Boid) -> void:
 	boid_objects.append(b)
 	boid_positions.append(b.global_position)
 	boid_velocities.append(b.velocity)
+	boid_types.append(b.class_id)
 	boids_out_of_date = true
 
 func remove_boid(b: Boid) -> void:
@@ -209,6 +236,7 @@ func remove_boid(b: Boid) -> void:
 	boid_objects.remove_at(i)
 	boid_positions.remove_at(i)
 	boid_velocities.remove_at(i)
+	boid_types.remove_at(i)
 	boids_out_of_date = true
 
 func process_queues() -> void:
@@ -220,6 +248,7 @@ func process_queues() -> void:
 		var b: Boid = boid_remove_queue.pop_front()
 		remove_boid(b)
 		b.on_overlord_removed()
+
 
 # this is a debug function
 var boid_scene = preload("res://boids/boid.tscn")
@@ -235,6 +264,10 @@ func spawn_some_boids(boids_to_spawn, spacing) -> void:
 		$CanvasGroup.add_child(b)
 		queue_add_boid(b)
 	print("all boids are added")
+
+
+
+
 
 func set_avoidance_objects() -> void:
 	for child: CircleAvoidancePoint in $AvoidanceObjects.get_children():
@@ -273,7 +306,6 @@ func _exit_tree() -> void:
 	device.free_rid(compute_pipeline)
 	device.free_rid(compute_shader)
 	device.free()
-
 
 func _on_button_pressed() -> void:
 	pass # Replace with function body.
