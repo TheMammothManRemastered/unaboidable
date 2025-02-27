@@ -29,7 +29,6 @@ var squish = 1.0
 var delayed_squish = squish
 var facing_direction := +1 ## -1 if facing left, +1 if facing right
 var time_on_floor := 0.0
-var gravity_scale := 1.0
 var active_coroutine: PlayerCoroutines
 
 ##- Nodes -##
@@ -46,10 +45,54 @@ func _init() -> void:
 	instance = self
 
 func _process(delta: float) -> void:
+	if not control_locked():
+		movement_update(delta)
+		walljump_update(delta)
+	
+	# facing direction
+	if is_on_floor():
+		if velocity.x < 0: facing_direction = -1
+		elif velocity.x > 0: facing_direction = +1
+	
+	# attacks
+	if not control_locked():
+		if Input.is_action_just_pressed("primary"):
+			if Input.is_action_pressed("move_down"):
+				new_coroutine().dive_attack()
+			else:
+				new_coroutine().main_attack()
+	
+	# set current AnimatedSprite2D animation
+	set_animation()
+	
+	# squash and stretch
+	if not is_on_floor():
+		squish = 1 + abs(velocity.y) / 3000
+	else:
+		if squish > 1.0:
+			squish = 1.0 / squish
+		else:
+			squish = move_toward(squish, 1.0, delta)
+	
+	delayed_squish = lerp(delayed_squish, squish, 1 - exp(-15 * delta))
+	#delayed_squish = move_toward(delayed_squish, squish, 5.0 * delta)
+	
+	visuals.scale.y = delayed_squish
+	visuals.scale.x = 1 / delayed_squish
+	visuals.scale.x *= facing_direction
+
+	# time on floor
+	if is_on_floor(): time_on_floor += delta
+	else: time_on_floor = 0.0
+
+	# finalize
+	move_and_slide()
+
+func movement_update(delta: float) -> void:
 	# Add the gravity.
 	if not is_on_floor():
 		var gravity = GRAVITY_FAST if Input.is_action_pressed("move_down") else GRAVITY_NORMAL
-		velocity.y += gravity * gravity_scale * delta
+		velocity.y += gravity * delta
 
 	# Handle jump.
 	# 	- jump release
@@ -83,8 +126,9 @@ func _process(delta: float) -> void:
 	else:
 		var decel = GROUND_DECEL if is_on_floor() else AIR_DECEL
 		velocity.x = move_toward(velocity.x, 0, decel * delta)
-	
-	# Wall jumps
+
+
+func walljump_update(delta: float) -> void:
 	if not is_on_floor():
 		var  left_wall =  left_wall_area.has_overlapping_bodies()
 		var right_wall = right_wall_area.has_overlapping_bodies()
@@ -101,44 +145,6 @@ func _process(delta: float) -> void:
 			
 			if Input.is_action_just_pressed("jump"):
 				wall_jump(normal)
-	
-	# facing direction
-	if is_on_floor():
-		if velocity.x < 0: facing_direction = -1
-		elif velocity.x > 0: facing_direction = +1
-	
-	# attacks
-	if Input.is_action_just_pressed("primary"):
-		if Input.is_action_pressed("move_down"):
-			new_coroutine().dive_attack()
-		else:
-			new_coroutine().main_attack()
-	
-	# set current AnimatedSprite2D animation
-	set_animation()
-	
-	# squash and stretch
-	if not is_on_floor():
-		squish = 1 + abs(velocity.y) / 3000
-	else:
-		if squish > 1.0:
-			squish = 1.0 / squish
-		else:
-			squish = move_toward(squish, 1.0, delta)
-	
-	delayed_squish = lerp(delayed_squish, squish, 1 - exp(-15 * delta))
-	#delayed_squish = move_toward(delayed_squish, squish, 5.0 * delta)
-	
-	visuals.scale.y = delayed_squish
-	visuals.scale.x = 1 / delayed_squish
-	visuals.scale.x *= facing_direction
-
-	# time on floor
-	if is_on_floor(): time_on_floor += delta
-	else: time_on_floor = 0.0
-
-	# finalize
-	move_and_slide()
 
 func set_animation() -> void:
 	var on_wall = left_wall_area.has_overlapping_bodies() or right_wall_area.has_overlapping_bodies()
@@ -177,9 +183,15 @@ func new_coroutine() -> PlayerCoroutines:
 	if active_coroutine != null:
 		active_coroutine.queue_free()
 	
-	var co = Node.new()
+	var co = PlayerCoroutines.new(self)
 	add_child(co)
-	co.set_script(preload("player_coroutines.gd"))
-	co.player = self
 	active_coroutine = co
 	return co
+
+func control_locked() -> bool:
+	if active_coroutine == null: return false
+	else: return active_coroutine.control_lock
+
+func gravity_scale() -> float:
+	if active_coroutine == null: return 1.0
+	else: return active_coroutine.gravity_scale
