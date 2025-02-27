@@ -105,7 +105,7 @@ vec2 calculate_boundary_vector() { // gets a vector to move the boid away from t
     return normalize(ret) * uniforms.boundary_weight;
 }
 
-vec2 calculate_cohesion_vector() { // cohesion stage - boids try to move towards the mean position of their neighbors
+vec2 calculate_cohesion_vector() {
     vec2 cohesion_vector = vec2(0.0, 0.0);
     vec2 target_position = vec2(0.0, 0.0);
     int n = 0;
@@ -114,27 +114,24 @@ vec2 calculate_cohesion_vector() { // cohesion stage - boids try to move towards
         if (i == CURR_BOID_INDEX) {
             continue;
         }
-        if (IMMUTABLE_TYPED(discriminatory) > 0.0 && BOID_TYPE(i) != CURR_BOID_TYPE) {
-            //continue;
-        }
 
-        float distance = distance(BOID_POSITION(i), CURR_BOID_POSITION);
+        float distance = distance(boid_positions.data[i], boid_positions.data[CURR_BOID_INDEX]);
         if (distance < IMMUTABLE_TYPED(cohesion_radius)) {
-            target_position += BOID_POSITION(i);
+            target_position += boid_positions.data[i];
             n++;
         }
     }
 
     if (n > 0) {
         target_position /= float(n);
-        cohesion_vector = target_position - CURR_BOID_POSITION;
+        cohesion_vector = target_position - boid_positions.data[CURR_BOID_INDEX];
         cohesion_vector = normalize(cohesion_vector);
     }
 
     return cohesion_vector * IMMUTABLE_TYPED(cohesion_weight);
 }
 
-vec2 calculate_alignment_vector() { // alignment stage - boids try to match the velocities of their neighbors
+vec2 calculate_alignment_vector() { // alignment stage - boids tend to match the velocities of their neighbors
     vec2 alignment_vector = vec2(0.0, 0.0);
     int n = 0;
 
@@ -142,13 +139,11 @@ vec2 calculate_alignment_vector() { // alignment stage - boids try to match the 
         if (i == CURR_BOID_INDEX) {
             continue;
         }
-        if (IMMUTABLE_TYPED(discriminatory) > 0.0 && BOID_TYPE(i) != CURR_BOID_TYPE) {
-            //continue;
-        }
+        
 
-        float distance = distance(CURR_BOID_POSITION, BOID_POSITION(i));
+        float distance = distance(boid_positions.data[CURR_BOID_INDEX], boid_positions.data[i]);
         if (distance < IMMUTABLE_TYPED(alignment_radius)) {
-            alignment_vector += CURR_BOID_VELOCITY;
+            alignment_vector += boid_velocities.data[i];
             n++;
         }
     }
@@ -224,4 +219,9 @@ void main() {
 
     // update position
     CURR_BOID_POSITION += CURR_BOID_VELOCITY * uniforms.delta;
+
+
+    if (CURR_BOID_TYPE == 1) {
+        CURR_BOID_VELOCITY = vec2(50.0, 50.0) * uniforms.delta;
+    }
 }

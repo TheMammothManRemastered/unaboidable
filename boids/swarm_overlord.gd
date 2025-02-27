@@ -251,10 +251,11 @@ func process_queues() -> void:
 
 
 # this is a debug function
-var boid_scene = preload("res://boids/simple_boid.tscn")
+var boid_scene = preload("res://boids/boid_types/simple_boid.tscn")
+var boid_scene2 = preload("res://boids/boid_types/stupid_boid.tscn")
 func spawn_some_boids(boids_to_spawn, spacing) -> void:
 	for i in range(boids_to_spawn):
-		var b: SimpleBoid = boid_scene.instantiate()
+		var b: Boid = boid_scene2.instantiate() if randf_range(0.0, 1.0) > 0.5 else boid_scene.instantiate()
 		b.global_position = Vector2(0, 0)
 		var w = spacing.x / 2.0
 		var h = spacing.y / 2.0
