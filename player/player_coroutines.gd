@@ -106,12 +106,15 @@ func dive_attack() -> void:
 	while not _p.is_on_floor():
 		await get_tree().process_frame
 		_p.velocity.x = lr * DIVE_LAND_SPEED
+		_p.dash_attack.hit()
+		
 	
 	var slide_time = 0.0
-	while Input.is_action_pressed("move_down") and slide_time < DIVE_MAX_SLIDE_TIME:
+	while Input.is_action_pressed("move_down") and slide_time < DIVE_MAX_SLIDE_TIME and _p.velocity.x != 0:
 		_p.velocity.x = lr * DIVE_LAND_SPEED
 		await get_tree().process_frame
 		slide_time += get_process_delta_time()
+		_p.dash_attack.hit()
 	
 	queue_free()
 

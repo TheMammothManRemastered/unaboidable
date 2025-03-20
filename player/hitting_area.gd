@@ -12,6 +12,9 @@ func hit() -> void:
 
 func long_hit(seconds: float) -> void:
 	long_hit_time = seconds
+	
+func stop_hit(seconds: float) -> void:
+	long_hit_time = 0.0
 
 func _process(delta: float) -> void:
 	if long_hit_time == 0: visible = false
