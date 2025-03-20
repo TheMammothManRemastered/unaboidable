@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=3 uid="uid://btmg41ucp5akp"]
+[gd_scene load_steps=22 format=3 uid="uid://btmg41ucp5akp"]
 
 [ext_resource type="Texture2D" uid="uid://ckmk0u2ts2ett" path="res://art/paper_bg.png" id="1_flfn5"]
 [ext_resource type="PackedScene" uid="uid://l26qgmbk7l7l" path="res://art/scribble/scribble_group.tscn" id="3_4h5r8"]
@@ -11,6 +11,7 @@
 [ext_resource type="Script" path="res://art/lighting_overlay.gd" id="10_pxwgn"]
 [ext_resource type="Script" path="res://boids/swarm_overlord.gd" id="11_k5nf0"]
 [ext_resource type="PackedScene" uid="uid://ocxj8tt81w8w" path="res://camera/main_cam.tscn" id="11_ms1ph"]
+[ext_resource type="Script" path="res://world/dummy_wave.gd" id="11_xo0dv"]
 [ext_resource type="Shader" path="res://art/scribble/marker.gdshader" id="12_mheqj"]
 [ext_resource type="Texture2D" uid="uid://bagnkt67v3352" path="res://art/scribble/marker_texture_black.png" id="13_s080m"]
 
@@ -123,7 +124,11 @@ texture = ExtResource("9_7ulir")
 expand_mode = 1
 script = ExtResource("10_pxwgn")
 
-[node name="SwarmOverlord" type="Node2D" parent="."]
+[node name="DummyWave" type="Timer" parent="."]
+autostart = true
+script = ExtResource("11_xo0dv")
+
+[node name="SwarmOverlord" type="Node2D" parent="DummyWave"]
 position = Vector2(584, 10)
 script = ExtResource("11_k5nf0")
 max_speed = 300.0
@@ -132,7 +137,9 @@ boundary_weight = 100.0
 separation_radius = 60.0
 separation_weight = 40.0
 
-[node name="CanvasGroup" type="CanvasGroup" parent="SwarmOverlord"]
+[node name="CanvasGroup" type="CanvasGroup" parent="DummyWave/SwarmOverlord"]
 material = SubResource("ShaderMaterial_re8hb")
 
-[node name="AvoidanceObjects" type="Node2D" parent="SwarmOverlord"]
+[node name="AvoidanceObjects" type="Node2D" parent="DummyWave/SwarmOverlord"]
+
+[connection signal="timeout" from="DummyWave" to="DummyWave" method="_on_timeout"]
