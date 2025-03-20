@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://bsyv4xwd4rosy"]
 
-[ext_resource type="Script" path="res://boids/circle_avoidance_point.gd" id="1_25wjm"]
+[ext_resource type="Script" uid="uid://dhs34fb57a7dc" path="res://boids/circle_avoidance_point.gd" id="1_25wjm"]
 [ext_resource type="Texture2D" uid="uid://cjfyjg6kacc85" path="res://player/player_test.png" id="2_0bgu4"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_vdg70"]

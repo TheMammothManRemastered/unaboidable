@@ -39,6 +39,9 @@ var active_coroutine: PlayerCoroutines
 @onready var left_wall_area: Area2D = %LeftWallArea
 @onready var right_wall_area: Area2D = %RightWallArea
 
+@onready var perry_attack: HittingArea = %PerryAttack
+@onready var dash_attack: HittingArea = %DashAttack
+
 static var instance: Player
 
 func _init() -> void:
@@ -180,7 +183,7 @@ func wall_jump(normal: int) -> void:
 
 func hurt(damage: int = 1) -> void:
 	if active_coroutine != null and active_coroutine.hurt_override != null:
-		active_coroutine.hurt_override.call()
+		active_coroutine.awaiting_hurt_override
 		return
 	
 	print("ouch!")

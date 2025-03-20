@@ -1,6 +1,6 @@
 [gd_scene load_steps=6 format=3 uid="uid://l26qgmbk7l7l"]
 
-[ext_resource type="Shader" path="res://art/scribble/marker.gdshader" id="1_qbsxt"]
+[ext_resource type="Shader" uid="uid://cq7e3qax24kci" path="res://art/scribble/marker.gdshader" id="1_qbsxt"]
 [ext_resource type="Texture2D" uid="uid://bagnkt67v3352" path="res://art/scribble/marker_texture_black.png" id="2_x05x7"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_q35dp"]

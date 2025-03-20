@@ -1,7 +1,7 @@
-[gd_scene load_steps=29 format=3 uid="uid://bd52wxgkn7xto"]
+[gd_scene load_steps=32 format=3 uid="uid://bd52wxgkn7xto"]
 
-[ext_resource type="Script" path="res://player/player.gd" id="1_qpvai"]
-[ext_resource type="Shader" path="res://art/scribble/marker.gdshader" id="2_k7hww"]
+[ext_resource type="Script" uid="uid://btiy4yn0xs6yr" path="res://player/player.gd" id="1_qpvai"]
+[ext_resource type="Shader" uid="uid://cq7e3qax24kci" path="res://art/scribble/marker.gdshader" id="2_k7hww"]
 [ext_resource type="Texture2D" uid="uid://bagnkt67v3352" path="res://art/scribble/marker_texture_black.png" id="3_8mfqh"]
 [ext_resource type="Texture2D" uid="uid://dqjumfl4bubme" path="res://player/sprites/jump/crouch0.png" id="4_cwkpo"]
 [ext_resource type="Texture2D" uid="uid://b2tyq2jmtaais" path="res://player/sprites/running/run0.png" id="4_hbmp4"]
@@ -18,6 +18,7 @@
 [ext_resource type="Texture2D" uid="uid://dldb00ays2eyo" path="res://player/sprites/jump/jump3.png" id="10_nd1ql"]
 [ext_resource type="Texture2D" uid="uid://cnntr0i2risy1" path="res://player/sprites/jump/jump4.png" id="11_ymppr"]
 [ext_resource type="Texture2D" uid="uid://c83244jn6n7i7" path="res://player/sprites/wall/wall0.png" id="17_0bcis"]
+[ext_resource type="Script" uid="uid://cfm14kxybd447" path="res://player/hitting_area.gd" id="19_c35mf"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_65lrr"]
 size = Vector2(96, 173)
@@ -126,6 +127,12 @@ point_count = 2
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_bnf15"]
 size = Vector2(28, 161)
 
+[sub_resource type="CircleShape2D" id="CircleShape2D_e7oew"]
+radius = 126.004
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_c35mf"]
+size = Vector2(80, 166)
+
 [node name="Player" type="CharacterBody2D"]
 collision_layer = 2
 script = ExtResource("1_qpvai")
@@ -155,11 +162,11 @@ unique_name_in_owner = true
 position = Vector2(-681, -345)
 emitting = false
 amount = 4
+texture = SubResource("GradientTexture2D_kspvi")
 lifetime = 0.4
 one_shot = true
 explosiveness = 1.0
 fixed_fps = 12
-texture = SubResource("GradientTexture2D_kspvi")
 particle_flag_align_y = true
 direction = Vector2(0, -1)
 spread = 55.91
@@ -177,11 +184,11 @@ unique_name_in_owner = true
 position = Vector2(-681, -449)
 emitting = false
 amount = 4
+texture = SubResource("GradientTexture2D_kspvi")
 lifetime = 0.4
 one_shot = true
 explosiveness = 1.0
 fixed_fps = 12
-texture = SubResource("GradientTexture2D_kspvi")
 emission_shape = 4
 emission_points = PackedVector2Array(-100, 0)
 emission_colors = PackedColorArray()
@@ -217,3 +224,26 @@ collision_layer = 0
 position = Vector2(0, 2.5)
 shape = SubResource("RectangleShape2D_bnf15")
 debug_color = Color(0, 0.632114, 0.454988, 0.42)
+
+[node name="AttackHits" type="Node2D" parent="."]
+position = Vector2(0, -80)
+
+[node name="PerryAttack" type="Area2D" parent="AttackHits"]
+unique_name_in_owner = true
+collision_layer = 2
+collision_mask = 4
+script = ExtResource("19_c35mf")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="AttackHits/PerryAttack"]
+shape = SubResource("CircleShape2D_e7oew")
+debug_color = Color(1, 0.00784314, 0.0588235, 0.0352941)
+
+[node name="DashAttack" type="Area2D" parent="AttackHits"]
+unique_name_in_owner = true
+collision_layer = 2
+collision_mask = 4
+script = ExtResource("19_c35mf")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="AttackHits/DashAttack"]
+shape = SubResource("RectangleShape2D_c35mf")
+debug_color = Color(1, 0.00784314, 0.0588235, 0.0352941)
