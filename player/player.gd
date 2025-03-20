@@ -55,12 +55,14 @@ func _process(delta: float) -> void:
 		elif velocity.x > 0: facing_direction = +1
 	
 	# attacks
-	if not control_locked():
+	if not moves_prevented():
 		if Input.is_action_just_pressed("primary"):
 			if Input.is_action_pressed("move_down"):
 				new_coroutine().dive_attack()
 			else:
 				new_coroutine().main_attack()
+		elif Input.is_action_just_pressed("special"):
+			new_coroutine().special_attack()
 	
 	# set current AnimatedSprite2D animation
 	set_animation()
@@ -177,6 +179,10 @@ func wall_jump(normal: int) -> void:
 	wall_jump_particles.restart()
 
 func hurt(damage: int = 1) -> void:
+	if active_coroutine != null and active_coroutine.hurt_override != null:
+		active_coroutine.hurt_override.call()
+		return
+	
 	print("ouch!")
 
 func new_coroutine() -> PlayerCoroutines:
@@ -191,6 +197,10 @@ func new_coroutine() -> PlayerCoroutines:
 func control_locked() -> bool:
 	if active_coroutine == null: return false
 	else: return active_coroutine.control_lock
+
+func moves_prevented() -> bool:
+	if active_coroutine == null: return false
+	else: return active_coroutine.prevent_moves or active_coroutine.control_lock
 
 func gravity_scale() -> float:
 	if active_coroutine == null: return 1.0

@@ -1,4 +1,4 @@
-class_name PlayerCoroutines extends Node
+class_name PlayerCoroutines extends Node2D
 
 const ATTACK_LUNGE_SPEED := 1500.0
 const ATTACK_LUNGE_TIME := 0.4
@@ -13,6 +13,9 @@ var _p: Player
 
 var control_lock := false
 var gravity_scale := 1.0
+var prevent_moves := false
+var hurt_override := false
+var awaiting_hurt_override := false # set by the player on hurt if hurt_override is true
 
 func _init(player: Player):
 	_p = player
@@ -47,11 +50,10 @@ func _set_player_position(position: Vector2) -> void:
 func main_attack(depth := 1) -> void:
 	const MAX_HOME_DISTANCE := 500.0
 	const SPEED_PER_PX := 200.0
-	const LUNGE_DISTANCE := 200.0
+	const LUNGE_DISTANCE := 300.0
 	const HOMING_EXTRA_DISTANCE := 40.0
 	const DECEL_TIME := 0.3
 	const FIXED_TIME := 0.2
-	const END_LAG := 0.1
 	const MAX_DEPTH := 3
 	
 	control_lock = true
@@ -68,13 +70,13 @@ func main_attack(depth := 1) -> void:
 	
 	_p.velocity = Vector2.ZERO
 	
-	var t = create_tween().set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+	var t = create_tween().set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_SPRING)
 	t.tween_method(_set_player_position, _p.position, _p.position + direction * distance, DECEL_TIME)
 	
-	await get_tree().create_timer(FIXED_TIME, false).timeout
+	await _timer(FIXED_TIME)
 	
-	while await _timer_step(END_LAG):
-		if _buffered_action != ActionType.NONE: break
+	#while await _timer_step(END_LAG):
+		#if _buffered_action != ActionType.NONE: break
 	
 	if depth < MAX_DEPTH and _buffered_action == ActionType.PRIMARY:
 		_p.new_coroutine().main_attack(depth + 1)
@@ -100,6 +102,54 @@ func dive_attack() -> void:
 		slide_time += get_process_delta_time()
 	
 	queue_free()
+
+func special_attack() -> void:
+	const PARRY_TIME := 0.5
+	print("Special Attack")
+	
+	control_lock = true
+	hurt_override = true
+	_p.velocity = Vector2.ZERO
+	
+	while await _timer_step(PARRY_TIME):
+		if awaiting_hurt_override:
+			_p.new_coroutine().special_perry()
+			queue_free()
+		elif _buffered_action == ActionType.SPECIAL:
+			_p.new_coroutine().special_chain_throw()
+			queue_free()
+		
+	queue_free()
+
+func special_perry() -> void:
+	print("perry!")
+
+func special_chain_throw() -> void:
+	const MAX_CHAIN_DISTANCE := 1000.0
+	const GRAPPLE_SPEED := 600.0
+	const GRAPPLE_ACCEL := 5000.0
+	const GRAPPLE_RELEASE_SPEED := 1800.0
+	print("Special Chain Throw")
+	
+	control_lock = false
+	prevent_moves = true
+	
+	var chained = _nearest_homing_target(MAX_CHAIN_DISTANCE)
+	
+	while chained != null:
+		var grapple_dir = _p.global_position.direction_to(chained.global_position)
+		_p.velocity = _p.velocity.move_toward(grapple_dir * GRAPPLE_SPEED, GRAPPLE_ACCEL * get_process_delta_time())
+		
+		if not Input.is_action_pressed("special"): # release grapple
+			_p.velocity = grapple_dir * GRAPPLE_RELEASE_SPEED
+			break
+		
+		await get_tree().process_frame
+	
+	queue_free()
+
+func _timer(seconds: float):
+	await get_tree().create_timer(seconds, false).timeout
 
 enum ActionType {
 	NONE,
