@@ -8,7 +8,7 @@ size = Vector2(24, 37)
 
 [node name="Boid" type="StaticBody2D" groups=["boids"]]
 scale = Vector2(2.38496, 2.38496)
-collision_layer = 4
+collision_layer = 8
 collision_mask = 0
 script = ExtResource("1_tldlb")
 

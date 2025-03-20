@@ -230,8 +230,8 @@ position = Vector2(0, -80)
 
 [node name="PerryAttack" type="Area2D" parent="AttackHits"]
 unique_name_in_owner = true
-collision_layer = 2
-collision_mask = 4
+collision_layer = 0
+collision_mask = 8
 script = ExtResource("19_c35mf")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="AttackHits/PerryAttack"]
@@ -240,8 +240,8 @@ debug_color = Color(1, 0.00784314, 0.0588235, 0.0352941)
 
 [node name="DashAttack" type="Area2D" parent="AttackHits"]
 unique_name_in_owner = true
-collision_layer = 2
-collision_mask = 4
+collision_layer = 0
+collision_mask = 8
 script = ExtResource("19_c35mf")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="AttackHits/DashAttack"]
