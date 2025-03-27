@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=3 uid="uid://btmg41ucp5akp"]
+[gd_scene load_steps=22 format=3 uid="uid://btmg41ucp5akp"]
 
 [ext_resource type="Texture2D" uid="uid://ckmk0u2ts2ett" path="res://art/paper_bg.png" id="1_flfn5"]
 [ext_resource type="PackedScene" uid="uid://l26qgmbk7l7l" path="res://art/scribble/scribble_group.tscn" id="3_4h5r8"]
@@ -13,6 +13,7 @@
 [ext_resource type="PackedScene" uid="uid://ocxj8tt81w8w" path="res://camera/main_cam.tscn" id="11_ms1ph"]
 [ext_resource type="Shader" uid="uid://cq7e3qax24kci" path="res://art/scribble/marker.gdshader" id="12_mheqj"]
 [ext_resource type="Texture2D" uid="uid://bagnkt67v3352" path="res://art/scribble/marker_texture_black.png" id="13_s080m"]
+[ext_resource type="PackedScene" uid="uid://evcvcfpr7icn" path="res://ui/title.tscn" id="14_dqqhb"]
 
 [sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_pybsb"]
 
@@ -136,3 +137,5 @@ separation_weight = 40.0
 material = SubResource("ShaderMaterial_re8hb")
 
 [node name="AvoidanceObjects" type="Node2D" parent="SwarmOverlord"]
+
+[node name="Title" parent="." instance=ExtResource("14_dqqhb")]

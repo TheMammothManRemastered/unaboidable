@@ -30,7 +30,7 @@ frequency = 0.0051
 seamless = true
 noise = SubResource("FastNoiseLite_akk2m")
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_re8hb"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_dqqhb"]
 shader = ExtResource("2_k7hww")
 shader_parameter/noise_scale = 0.003
 shader_parameter/noise_texture = SubResource("NoiseTexture2D_uvdcl")
@@ -145,7 +145,7 @@ shape = SubResource("RectangleShape2D_65lrr")
 unique_name_in_owner = true
 
 [node name="CanvasGroup" type="CanvasGroup" parent="Visuals"]
-material = SubResource("ShaderMaterial_re8hb")
+material = SubResource("ShaderMaterial_dqqhb")
 
 [node name="PlayerSprite" type="AnimatedSprite2D" parent="Visuals/CanvasGroup"]
 unique_name_in_owner = true

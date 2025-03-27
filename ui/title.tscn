@@ -1,0 +1,60 @@
+[gd_scene load_steps=9 format=3 uid="uid://evcvcfpr7icn"]
+
+[ext_resource type="Shader" uid="uid://cq7e3qax24kci" path="res://art/scribble/marker.gdshader" id="1_5w2xo"]
+[ext_resource type="Script" uid="uid://bl6ir8ijngxkp" path="res://ui/title.gd" id="1_8lx1x"]
+[ext_resource type="Texture2D" uid="uid://bagnkt67v3352" path="res://art/scribble/marker_texture_black.png" id="2_8lx1x"]
+[ext_resource type="FontFile" uid="uid://bu1kb4ofjm78k" path="res://fonts/PermanentMarker-Regular.ttf" id="3_k1m56"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_akk2m"]
+frequency = 0.0051
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_uvdcl"]
+seamless = true
+noise = SubResource("FastNoiseLite_akk2m")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_dqqhb"]
+shader = ExtResource("1_5w2xo")
+shader_parameter/noise_scale = 0.003
+shader_parameter/noise_texture = SubResource("NoiseTexture2D_uvdcl")
+shader_parameter/marker_texture = ExtResource("2_8lx1x")
+
+[sub_resource type="LabelSettings" id="LabelSettings_b2suy"]
+font = ExtResource("3_k1m56")
+font_size = 128
+font_color = Color(0, 0, 0, 1)
+
+[node name="Title" type="CanvasLayer"]
+script = ExtResource("1_8lx1x")
+
+[node name="CanvasGroup" type="CanvasGroup" parent="."]
+material = SubResource("ShaderMaterial_dqqhb")
+
+[node name="Unaboidable" type="Label" parent="CanvasGroup"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = 166.5
+offset_top = 205.0
+offset_right = 985.5
+offset_bottom = 388.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "unaBOIDable"
+label_settings = SubResource("LabelSettings_b2suy")
+
+[node name="StartTip" type="Label" parent="CanvasGroup"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = 351.0
+offset_top = 361.5
+offset_right = 826.0
+offset_bottom = 442.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 50
+text = "press ENTER to start"

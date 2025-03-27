@@ -47,45 +47,6 @@ fill_to = Vector2(1, 0.5)
 [sub_resource type="CircleShape2D" id="CircleShape2D_msxyl"]
 radius = 15.5648
 
-[sub_resource type="Animation" id="Animation_msxyl"]
-resource_name = "attack"
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("Attack/AttackWarning:visible")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.233333),
-"transitions": PackedFloat32Array(1, 1),
-"update": 1,
-"values": [true, false]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("Attack/HurtArea:monitoring")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0.233333, 0.333333),
-"transitions": PackedFloat32Array(1, 1),
-"update": 1,
-"values": [true, false]
-}
-tracks/2/type = "value"
-tracks/2/imported = false
-tracks/2/enabled = true
-tracks/2/path = NodePath("Attack/CanvasGroup/Circle:scale")
-tracks/2/interp = 1
-tracks/2/loop_wrap = true
-tracks/2/keys = {
-"times": PackedFloat32Array(0, 0.233333, 0.433333, 0.443333),
-"transitions": PackedFloat32Array(0, 1, 0, 1),
-"update": 0,
-"values": [Vector2(1e-05, 1e-05), Vector2(0.2, 0.2), Vector2(0.6, 0.6), Vector2(0, 0)]
-}
-
 [sub_resource type="Animation" id="Animation_7532l"]
 length = 0.001
 tracks/0/type = "value"
@@ -125,6 +86,45 @@ tracks/2/keys = {
 "values": [Vector2(1e-05, 1e-05)]
 }
 
+[sub_resource type="Animation" id="Animation_msxyl"]
+resource_name = "attack"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Attack/AttackWarning:visible")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.233333),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [true, false]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Attack/HurtArea:monitoring")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0.233333, 0.333333),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [true, false]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Attack/CanvasGroup/Circle:scale")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.233333, 0.433333, 0.443333),
+"transitions": PackedFloat32Array(0, 1, 0, 1),
+"update": 0,
+"values": [Vector2(1e-05, 1e-05), Vector2(0.2, 0.2), Vector2(0.6, 0.6), Vector2(0, 0)]
+}
+
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_akk2m"]
 _data = {
 &"RESET": SubResource("Animation_7532l"),
@@ -152,14 +152,12 @@ shape = SubResource("RectangleShape2D_sps27")
 
 [node name="CanvasGroup" type="CanvasGroup" parent="Attack"]
 material = SubResource("ShaderMaterial_hx7e5")
-scale = Vector2(1, 1)
 
 [node name="Circle" type="Sprite2D" parent="Attack/CanvasGroup"]
 scale = Vector2(1e-05, 1e-05)
 texture = SubResource("GradientTexture2D_7532l")
 
 [node name="HurtArea" type="Area2D" parent="Attack"]
-scale = Vector2(1, 1)
 collision_layer = 0
 collision_mask = 2
 monitoring = false

@@ -15,6 +15,10 @@ run/main_scene="res://world/world.tscn"
 config/features=PackedStringArray("4.4", "Forward Plus")
 run/max_fps=24
 
+[autoload]
+
+Globals="*res://globals.gd"
+
 [display]
 
 window/stretch/mode="canvas_items"
@@ -23,6 +27,7 @@ window/stretch/mode="canvas_items"
 
 folder_colors={
 "res://player/": "blue",
+"res://ui/": "green",
 "res://world/": "yellow"
 }
 
@@ -30,6 +35,10 @@ folder_colors={
 
 player=""
 boids=""
+
+[gui]
+
+theme/custom_font="uid://csg5jyplun8d"
 
 [input]
 
@@ -66,6 +75,11 @@ primary={
 special={
 "deadzone": 0.5,
 "events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":90,"key_label":0,"unicode":122,"location":0,"echo":false,"script":null)
+]
+}
+start_game={
+"deadzone": 0.2,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":4194309,"key_label":0,"unicode":0,"location":0,"echo":false,"script":null)
 ]
 }
 
