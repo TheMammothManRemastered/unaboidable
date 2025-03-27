@@ -182,6 +182,8 @@ func wall_jump(normal: int) -> void:
 	wall_jump_particles.restart()
 
 func hurt(damage: int = 1) -> void:
+	print("player was hurt!")
+	
 	if active_coroutine != null and active_coroutine.hurt_override != null:
 		active_coroutine.awaiting_hurt_override
 		return

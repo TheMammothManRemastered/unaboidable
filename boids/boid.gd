@@ -7,8 +7,15 @@ var velocity: Vector2 = Vector2.from_angle(PI / 4.0) * 50.0
 var dead: bool = false
 var health: int = 1
 
+const ATTACK_RANGE := 80.0
+@onready var anim: AnimationPlayer = %Anim
+
 func _physics_process(delta: float) -> void:
 	self.rotation = self.velocity.normalized().angle() + (PI / 2.0)
+	
+
+	if Player.instance.global_position.distance_to(self.global_position) <= ATTACK_RANGE:
+		anim.play("attack")
 
 func hurt(damage: int = 1) -> void:
 	health -= damage
@@ -25,3 +32,7 @@ func on_overlord_added() -> void:
 
 func on_overlord_removed() -> void:
 	queue_free()
+
+func _on_hurt_area_body_entered(body: Node2D) -> void:
+	if body is Player:
+		body.hurt()

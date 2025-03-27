@@ -132,7 +132,7 @@ boundary_weight = 100.0
 separation_radius = 60.0
 separation_weight = 40.0
 
-[node name="CanvasGroup" type="CanvasGroup" parent="SwarmOverlord"]
+[node name="CanvasGroup" type="Node2D" parent="SwarmOverlord"]
 material = SubResource("ShaderMaterial_re8hb")
 
 [node name="AvoidanceObjects" type="Node2D" parent="SwarmOverlord"]

@@ -23,17 +23,17 @@
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_65lrr"]
 size = Vector2(96, 173)
 
-[sub_resource type="FastNoiseLite" id="FastNoiseLite_q35dp"]
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_akk2m"]
 frequency = 0.0051
 
-[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_ai8ok"]
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_uvdcl"]
 seamless = true
-noise = SubResource("FastNoiseLite_q35dp")
+noise = SubResource("FastNoiseLite_akk2m")
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_re8hb"]
 shader = ExtResource("2_k7hww")
 shader_parameter/noise_scale = 0.003
-shader_parameter/noise_texture = SubResource("NoiseTexture2D_ai8ok")
+shader_parameter/noise_texture = SubResource("NoiseTexture2D_uvdcl")
 shader_parameter/marker_texture = ExtResource("3_8mfqh")
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_7keir"]

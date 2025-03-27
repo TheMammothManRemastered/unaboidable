@@ -130,10 +130,17 @@ func special_attack() -> void:
 		if awaiting_hurt_override:
 			_p.new_coroutine().special_perry()
 			queue_free()
-		elif _buffered_action == ActionType.SPECIAL:
-			_p.new_coroutine().special_knives()
-			queue_free()
-		
+		else:
+			match _buffered_action:
+				ActionType.SPECIAL:
+					_p.new_coroutine().special_knives()
+					queue_free()
+				ActionType.PRIMARY:
+					_p.new_coroutine().special_explode()
+					queue_free()
+				ActionType.JUMP:
+					_p.new_coroutine().special_feather()
+					queue_free()
 	queue_free()
 
 func special_perry() -> void:
@@ -141,8 +148,12 @@ func special_perry() -> void:
 	_p.perry_attack.hit()
 
 func special_knives() -> void:
+	#const MAX_DIST := 1000.0
 	print("knives!")
-	pass
+	#var input = Input.get_vector("move_left", "move_right", "move_up", "move_down")
+	#input.
+	#var targets = _nearest_homing_targets()
+	#pass
 
 #func special_chain_throw() -> void:
 	#const MAX_CHAIN_DISTANCE := 1000.0

@@ -3,9 +3,7 @@ class_name HittingArea extends Area2D
 var long_hit_time := 0.0
 
 func hit() -> void:
-	print("hitting")
 	for body in get_overlapping_bodies():
-		print("hitting_area: hit `%s`" % body)
 		body.hurt()
 	
 	visible = true
