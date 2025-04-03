@@ -64,6 +64,8 @@ struct ImmutableTypeData {
     float cohesion_radius;
     float cohesion_weight;
     float discriminatory;
+    float critical_mass;
+    float goal_weight;
 };
 // TODO: there will eventually be MutableTypeData too (probably)
 layout(set = 0, binding = IMMUTABLE_TYPE_DATA_BINDING, std430) buffer ImmutableTypeBuffer {
@@ -222,7 +224,7 @@ vec2 calculate_goal_vector() { // goal-seeking - boids want to go somewhere spec
         }
     }
 
-    if (n < 2) { // TODO: make this an immutable typed
+    if (n < IMMUTABLE_TYPED(critical_mass)) {
         return goal_vector;
     }
 
@@ -230,7 +232,7 @@ vec2 calculate_goal_vector() { // goal-seeking - boids want to go somewhere spec
     flock_average /= float(n);
     goal_vector = normalize(global_goals.data[0] - flock_average);
 
-    return goal_vector * 20.0;
+    return goal_vector * IMMUTABLE_TYPED(goal_weight);
 }
 
 

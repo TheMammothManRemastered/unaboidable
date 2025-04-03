@@ -100,7 +100,9 @@ func get_immutable_type_data(type: Object) -> Array[float]:
 		type.alignment_weight,
 		type.cohesion_radius,
 		type.cohesion_weight,
-		1.0 if type.discriminatory else 0.0
+		1.0 if type.discriminatory else 0.0,
+		float(type.critical_mass),
+		type.goal_weight
 	]
 
 func create_immutable_type_data_buffer() -> RID:

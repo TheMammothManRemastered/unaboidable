@@ -11,6 +11,8 @@ static var alignment_weight: float = 0.2
 static var cohesion_radius: float = 250
 static var cohesion_weight: float = 0.15
 static var discriminatory: bool = true
+static var critical_mass: int = 8
+static var goal_weight: float = 25
 
 static var class_id = 1
 static var boid_scene = preload("res://boids/boid_types/stupid_boid.tscn")
