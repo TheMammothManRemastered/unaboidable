@@ -35,6 +35,7 @@ const AVOIDANCE_UNIFORM_BINDING = 3
 const UNIFORMS_UNIFORM_BINDING = 4
 const IMMUTABLE_TYPE_DATA_UNIFORM_BINDING = 5
 const GLOBAL_GOALS_UNIFORM_BINDING = 6
+const MUTABLE_BOID_DATA_UNIFORM_BINDING = 7 # TODO: implement this
 
 # compute shader resources
 var device: RenderingDevice

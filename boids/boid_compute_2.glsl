@@ -8,14 +8,17 @@
 #define UNIFORMS_BINDING                    (4)
 #define IMMUTABLE_TYPE_DATA_BINDING         (5)
 #define GLOBAL_GOALS_BINDING                (6)
+#define BOID_MUTABLE_BINDING                (7)
 
 #define BOID_POSITION(i)    (boid_positions.data[i])
 #define BOID_VELOCITY(i)    (boid_velocities.data[i])
 #define BOID_TYPE(i)        (boid_types.data[i])
+#define BOID_MUTABLE(i)     (mutable_boid_data.data[i])
 #define CURR_BOID_INDEX     (gl_GlobalInvocationID.x)
 #define CURR_BOID_POSITION  (BOID_POSITION(CURR_BOID_INDEX))
 #define CURR_BOID_VELOCITY  (BOID_VELOCITY(CURR_BOID_INDEX))
 #define CURR_BOID_TYPE      (BOID_TYPE(CURR_BOID_INDEX))
+#define CURR_BOID_MUTABLE   (BOID_MUTABLE(CURR_BOID_INDEX))
 
 #define IMMUTABLE_TYPED(symbol) (immutable_type_data.data[CURR_BOID_TYPE].symbol)
 
@@ -34,6 +37,14 @@ layout(set = 0, binding = BOID_VELOCITIES_BINDING, std430) buffer VelocityBuffer
 layout(set = 0, binding = BOID_TYPES_BINDING, std430) buffer TypeBuffer {
     int data[];
 } boid_types;
+// holds persistent, mutable data for each boid. needs to hold all info any boid may need (this is for convenience's sake)
+struct BoidDataObject {
+    int placeholder; // unused, only here so the shader compiles
+};
+// TODO: implement this on godot's side
+/* layout(set = 0, binding = BOID_MUTABLE_BINDING, std430) buffer MutableBuffer { 
+    BoidDataObject data[];
+} mutable_boid_data; */
 
 struct AvoidanceObject {
     vec2 position;
