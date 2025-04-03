@@ -130,8 +130,6 @@ script = ExtResource("11_k5nf0")
 max_speed = 300.0
 boundaries = Vector2(2000, 1120)
 boundary_weight = 100.0
-separation_radius = 60.0
-separation_weight = 40.0
 
 [node name="CanvasGroup" type="Node2D" parent="SwarmOverlord"]
 material = SubResource("ShaderMaterial_re8hb")
