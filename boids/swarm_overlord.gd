@@ -122,7 +122,7 @@ func create_empty_uniform(type: RenderingDevice.UniformType, binding: int) -> RD
 
 func setup_compute_shaders() -> void:
 	device = RenderingServer.create_local_rendering_device()
-	var shader_file := load("res://boids/boid_compute_1.glsl")
+	var shader_file := load("res://boids/overlord.glsl")
 	var shader_spirv: RDShaderSPIRV = shader_file.get_spirv()
 	compute_shader = device.shader_create_from_spirv(shader_spirv)
 	compute_pipeline = device.compute_pipeline_create(compute_shader)
