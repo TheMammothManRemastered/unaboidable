@@ -53,6 +53,7 @@ layout(set = 0, binding = UNIFORMS_BINDING, std430) buffer UniformsBuffer {
     float boundary_origin_y;
     float boundary_weight;
     float delta;
+    float num_global_goals;
 } uniforms;
 
 struct ImmutableTypeData {

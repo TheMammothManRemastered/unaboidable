@@ -136,4 +136,6 @@ material = SubResource("ShaderMaterial_re8hb")
 
 [node name="AvoidanceObjects" type="Node2D" parent="SwarmOverlord"]
 
+[node name="GoalPoints" type="Node2D" parent="SwarmOverlord"]
+
 [node name="Title" parent="." instance=ExtResource("14_dqqhb")]

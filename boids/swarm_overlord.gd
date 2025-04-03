@@ -82,14 +82,20 @@ func create_boid_uniforms_buffer(delta: float) -> RID:
 		global_position.x,
 		global_position.y,
 		boundary_weight,
-		delta
+		delta,
+		float(1 + $GoalPoints.get_child_count())
 	])
 
 func create_global_goals_buffer() -> RID:
 	# the global goals buffer will always have the player's position in index 0
 	# ideally we'd have several more points for boids to retreat to after hitting the player
 	var player_position: Vector2 = Player.instance.global_position
-	return create_float_buffer([player_position.x, player_position.y])
+	var float_positions: Array[float] = [player_position.x, player_position.y]
+	for c in $GoalPoints.get_children():
+		var goal: Vector2 = (c as Node2D).global_position
+		float_positions.append(goal.x)
+		float_positions.append(goal.y)
+	return create_float_buffer(float_positions)
 
 func get_immutable_type_data(type: Object) -> Array[float]:
 	return [
