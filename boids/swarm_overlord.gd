@@ -86,7 +86,10 @@ func create_boid_uniforms_buffer(delta: float) -> RID:
 	])
 
 func create_global_goals_buffer() -> RID:
-	return create_float_buffer([-517.54, -106.276])
+	# the global goals buffer will always have the player's position in index 0
+	# ideally we'd have several more points for boids to retreat to after hitting the player
+	var player_position: Vector2 = Player.instance.global_position
+	return create_float_buffer([player_position.x, player_position.y])
 
 func get_immutable_type_data(type: Object) -> Array[float]:
 	return [
@@ -184,9 +187,6 @@ func update_compute_data(delta: float) -> void:
 	if not are_boids_present():
 		return
 	
-	global_goals_buffer = create_global_goals_buffer()
-	set_uniform(global_goals_uniform, global_goals_buffer)
-	
 	if boids_out_of_date:
 		boid_positions_buffer = create_vec2_buffer(boid_positions)
 		set_uniform(boid_positions_uniform, boid_positions_buffer)
@@ -197,6 +197,9 @@ func update_compute_data(delta: float) -> void:
 		boid_types_buffer = create_int32_buffer(boid_types)
 		set_uniform(boid_types_uniform, boid_types_buffer)
 		boids_out_of_date = false
+	
+	global_goals_buffer = create_global_goals_buffer()
+	set_uniform(global_goals_uniform, global_goals_buffer)
 	
 	boid_uniforms_buffer = create_boid_uniforms_buffer(delta)
 	set_uniform(boid_uniforms_uniform, boid_uniforms_buffer)
@@ -272,6 +275,9 @@ func process_queues() -> void:
 		b.on_overlord_removed()
 
 
+
+
+
 # this is a debug function
 var boid_scene = preload("res://boids/boid_types/simple_boid.tscn")
 var boid_scene2 = preload("res://boids/boid_types/stupid_boid.tscn")
@@ -287,6 +293,7 @@ func spawn_some_boids(boids_to_spawn, spacing) -> void:
 		$CanvasGroup.add_child(b)
 		queue_add_boid(b)
 	print("all boids are added")
+
 
 
 
