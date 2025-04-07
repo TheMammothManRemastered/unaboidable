@@ -1,0 +1,27 @@
+[gd_scene load_steps=5 format=3 uid="uid://cc0tu4mautylr"]
+
+[ext_resource type="Script" uid="uid://wceoqqesefi8" path="res://player/attacks/charged_dash/charged_dash_attack.gd" id="1_65sfu"]
+[ext_resource type="PackedScene" uid="uid://nb52cuutp7fm" path="res://player/attacks/hitting_area.tscn" id="2_x6obi"]
+[ext_resource type="PackedScene" uid="uid://dnkihiuu2628t" path="res://art/line_art/scribbled_line.tscn" id="3_10w6v"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_x7c3f"]
+radius = 114.355
+
+[node name="ChargedDashAttack" type="Node2D"]
+script = ExtResource("1_65sfu")
+
+[node name="HittingArea" parent="." instance=ExtResource("2_x6obi")]
+unique_name_in_owner = true
+position = Vector2(0, -80)
+
+[node name="CollisionShape2D" parent="HittingArea" index="0"]
+shape = SubResource("CircleShape2D_x7c3f")
+
+[node name="AimIndicator" parent="." instance=ExtResource("3_10w6v")]
+unique_name_in_owner = true
+position = Vector2(0, -80)
+scale = Vector2(1e-05, 1e-05)
+points = PackedVector2Array(118, 33, 144, -1, 120, -30)
+width = 70.0
+
+[editable path="HittingArea"]
