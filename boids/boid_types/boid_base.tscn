@@ -1,0 +1,38 @@
+[gd_scene load_steps=9 format=3 uid="uid://boi3np5wy1gwn"]
+
+[ext_resource type="Script" uid="uid://c2dcaqyfflj4p" path="res://boids/boid_types/boid.gd" id="1_6bghq"]
+[ext_resource type="Shader" uid="uid://cq7e3qax24kci" path="res://art/scribble/marker.gdshader" id="2_l3wad"]
+[ext_resource type="Texture2D" uid="uid://bagnkt67v3352" path="res://art/scribble/marker_texture_black.png" id="3_jihxv"]
+[ext_resource type="Texture2D" uid="uid://dyti57kj53o1b" path="res://boids/boid_triangle.png" id="4_3hrdl"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_q35dp"]
+frequency = 0.0051
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_ai8ok"]
+seamless = true
+noise = SubResource("FastNoiseLite_q35dp")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_re8hb"]
+shader = ExtResource("2_l3wad")
+shader_parameter/noise_scale = 0.005
+shader_parameter/noise_texture = SubResource("NoiseTexture2D_ai8ok")
+shader_parameter/marker_texture = ExtResource("3_jihxv")
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_sps27"]
+size = Vector2(60, 92.5)
+
+[node name="BoidBase" type="StaticBody2D" groups=["boids"]]
+collision_layer = 8
+collision_mask = 0
+script = ExtResource("1_6bghq")
+
+[node name="CanvasGroup" type="CanvasGroup" parent="."]
+material = SubResource("ShaderMaterial_re8hb")
+
+[node name="Sprite2D" type="Sprite2D" parent="CanvasGroup"]
+scale = Vector2(0.394, 0.394)
+texture = ExtResource("4_3hrdl")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -0.5)
+shape = SubResource("RectangleShape2D_sps27")

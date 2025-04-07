@@ -15,4 +15,4 @@ static var critical_mass: int = 8
 static var goal_weight: float = 25
 
 static var class_id = 1
-static var boid_scene = preload("res://boids/boid_types/stupid_boid.tscn")
+static var boid_scene = preload("res://boids/boid_types/boid_stupid.gd")
