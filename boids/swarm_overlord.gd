@@ -380,7 +380,7 @@ func _ready() -> void:
 	setup_bindings()
 	
 	# for testing, spawn boids right away
-	spawn_some_boids(30, Vector2(500, 500))
+	#spawn_some_boids(30, Vector2(500, 500))
 
 func _physics_process(delta: float) -> void:
 	# NOTE: boids being added or removed is only processed every X frames

@@ -1,4 +1,4 @@
-[gd_scene load_steps=25 format=3 uid="uid://btmg41ucp5akp"]
+[gd_scene load_steps=26 format=3 uid="uid://btmg41ucp5akp"]
 
 [ext_resource type="Texture2D" uid="uid://ckmk0u2ts2ett" path="res://art/paper_bg.png" id="1_flfn5"]
 [ext_resource type="PackedScene" uid="uid://l26qgmbk7l7l" path="res://art/scribble/scribble_group.tscn" id="3_4h5r8"]
@@ -17,6 +17,7 @@
 [ext_resource type="PackedScene" uid="uid://borvoko6olkjc" path="res://boids/waves/wave_manager.tscn" id="15_ysn08"]
 [ext_resource type="PackedScene" uid="uid://b5huk45rawv8i" path="res://boids/waves/wave.tscn" id="16_m0cxt"]
 [ext_resource type="PackedScene" uid="uid://c1jiu6sovcp1q" path="res://boids/boid_types/boid_simple.tscn" id="17_j34ew"]
+[ext_resource type="PackedScene" uid="uid://cy51xvcg67u6o" path="res://boids/boid_types/bomboideer.tscn" id="18_m0cxt"]
 
 [sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_pybsb"]
 
@@ -146,6 +147,25 @@ material = SubResource("ShaderMaterial_re8hb")
 [node name="WaveManager" parent="." instance=ExtResource("15_ysn08")]
 
 [node name="Wave" parent="WaveManager" instance=ExtResource("16_m0cxt")]
-quantities = Array[int]([20, 5])
+quantities = Array[int]([15])
 
 [node name="BoidSimple" parent="WaveManager/Wave" instance=ExtResource("17_j34ew")]
+
+[node name="Wave2" parent="WaveManager" instance=ExtResource("16_m0cxt")]
+quantities = Array[int]([25])
+
+[node name="BoidSimple" parent="WaveManager/Wave2" instance=ExtResource("17_j34ew")]
+
+[node name="Wave3" parent="WaveManager" instance=ExtResource("16_m0cxt")]
+quantities = Array[int]([20, 5])
+
+[node name="BoidSimple" parent="WaveManager/Wave3" instance=ExtResource("17_j34ew")]
+
+[node name="Bomboideer" parent="WaveManager/Wave3" instance=ExtResource("18_m0cxt")]
+
+[node name="Wave4" parent="WaveManager" instance=ExtResource("16_m0cxt")]
+quantities = Array[int]([25, 15])
+
+[node name="BoidSimple" parent="WaveManager/Wave4" instance=ExtResource("17_j34ew")]
+
+[node name="Bomboideer" parent="WaveManager/Wave4" instance=ExtResource("18_m0cxt")]

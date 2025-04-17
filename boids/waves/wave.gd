@@ -12,8 +12,10 @@ var rng: RandomNumberGenerator = null
 func _ready() -> void:
 	rng = RandomNumberGenerator.new()
 	
-	assert(not use_weights and quantities.size() == get_child_count(), "Quantities array size invalid")
-	assert(use_weights and weights.size() == get_child_count(), "Weights array size invalid")
+	if use_weights:
+		assert(weights.size() == get_child_count(), "Weights array size invalid")
+	else:
+		assert(quantities.size() == get_child_count(), "Quantities array size invalid")
 	
 	for c in get_children():
 		boid_scenes.append(c.boid_scene)
@@ -23,7 +25,7 @@ func spawn_boid(scene: PackedScene) -> void:
 	var overlord: SwarmOverlord = SwarmOverlord.instance
 	var b: Boid = scene.instantiate()
 	b.global_position = Vector2(0, 0)
-	var w = 1200
+	var w = 600
 	var h = 600
 	b.global_position.x += randf_range(-w, w)
 	b.global_position.y += randf_range(-h, h)
