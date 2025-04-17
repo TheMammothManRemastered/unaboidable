@@ -151,6 +151,8 @@ func walljump_update(delta: float) -> void:
 				wall_jump(normal)
 
 func set_animation() -> void:
+	if is_animation_overriding(): return
+	
 	var on_wall = left_wall_area.has_overlapping_bodies() or right_wall_area.has_overlapping_bodies()
 	
 	if is_on_floor():
@@ -209,3 +211,7 @@ func moves_prevented() -> bool:
 func gravity_scale() -> float:
 	if active_coroutine == null: return 1.0
 	else: return active_coroutine.gravity_scale
+
+func is_animation_overriding() -> bool:
+	if active_coroutine == null: return false
+	else: return active_coroutine.animation_override
