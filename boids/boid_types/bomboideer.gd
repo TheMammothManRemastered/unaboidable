@@ -31,13 +31,6 @@ const ATTACK_RANGE = 80.0
 func _physics_process(delta: float) -> void:
 	super._physics_process(delta)
 	
-	if Player.instance.global_position.distance_to(self.global_position) <= ATTACK_RANGE:
-		#Player.instance.hurt(3)
+	if Player.instance.global_position.distance_to(self.global_position) <= ATTACK_RANGE and not dead:
+		Player.instance.hurt(3)
 		die()
-
-func _exit_tree() -> void:
-	print("something freed me!")
-
-func on_overlord_removed():
-	print("the overlord removed me!")
-	self.queue_free()

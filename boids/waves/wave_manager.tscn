@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://borvoko6olkjc"]
+
+[ext_resource type="Script" uid="uid://bl1r5owui5ram" path="res://boids/waves/wave_manager.gd" id="1_ptyri"]
+
+[node name="WaveManager" type="Node"]
+script = ExtResource("1_ptyri")

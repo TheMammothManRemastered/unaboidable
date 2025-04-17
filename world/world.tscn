@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=3 uid="uid://btmg41ucp5akp"]
+[gd_scene load_steps=25 format=3 uid="uid://btmg41ucp5akp"]
 
 [ext_resource type="Texture2D" uid="uid://ckmk0u2ts2ett" path="res://art/paper_bg.png" id="1_flfn5"]
 [ext_resource type="PackedScene" uid="uid://l26qgmbk7l7l" path="res://art/scribble/scribble_group.tscn" id="3_4h5r8"]
@@ -14,6 +14,9 @@
 [ext_resource type="Shader" uid="uid://cq7e3qax24kci" path="res://art/scribble/marker.gdshader" id="12_mheqj"]
 [ext_resource type="Texture2D" uid="uid://bagnkt67v3352" path="res://art/scribble/marker_texture_black.png" id="13_s080m"]
 [ext_resource type="PackedScene" uid="uid://evcvcfpr7icn" path="res://ui/title.tscn" id="14_dqqhb"]
+[ext_resource type="PackedScene" uid="uid://borvoko6olkjc" path="res://boids/waves/wave_manager.tscn" id="15_ysn08"]
+[ext_resource type="PackedScene" uid="uid://b5huk45rawv8i" path="res://boids/waves/wave.tscn" id="16_m0cxt"]
+[ext_resource type="PackedScene" uid="uid://c1jiu6sovcp1q" path="res://boids/boid_types/boid_simple.tscn" id="17_j34ew"]
 
 [sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_pybsb"]
 
@@ -139,3 +142,10 @@ material = SubResource("ShaderMaterial_re8hb")
 [node name="GoalPoints" type="Node2D" parent="SwarmOverlord"]
 
 [node name="Title" parent="." instance=ExtResource("14_dqqhb")]
+
+[node name="WaveManager" parent="." instance=ExtResource("15_ysn08")]
+
+[node name="Wave" parent="WaveManager" instance=ExtResource("16_m0cxt")]
+quantities = Array[int]([20, 5])
+
+[node name="BoidSimple" parent="WaveManager/Wave" instance=ExtResource("17_j34ew")]

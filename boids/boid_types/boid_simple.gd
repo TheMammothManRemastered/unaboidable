@@ -15,7 +15,7 @@ static var critical_mass: int = 4
 static var goal_weight: float = 12
 
 static var class_id = 0
-static var boid_scene = preload("res://boids/boid_types/boid_simple.gd")
+static var boid_scene = preload("res://boids/boid_types/boid_simple.tscn")
 
 const ATTACK_RANGE := 80.0
 @onready var anim: AnimationPlayer = %Anim

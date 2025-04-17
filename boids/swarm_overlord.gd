@@ -345,11 +345,10 @@ func process_queues() -> void:
 
 
 # this is a debug function
-var boid_scene = preload("res://boids/boid_types/boid_simple.tscn")
-var boid_scene2 = preload("res://boids/boid_types/boid_stupid.tscn")
+var to_spawn: Array[PackedScene] = [BombBoid.boid_scene, SimpleBoid.boid_scene]
 func spawn_some_boids(boids_to_spawn, spacing) -> void:
-	for i in range(10):
-		var b: Boid = BombBoid.boid_scene.instantiate()
+	for i in range(30):
+		var b: Boid = to_spawn.pick_random().instantiate()
 		b.global_position = Vector2(0, 0)
 		var w = spacing.x / 2.0
 		var h = spacing.y / 2.0
@@ -364,6 +363,9 @@ func spawn_some_boids(boids_to_spawn, spacing) -> void:
 
 
 
+
+func get_canvas_group() -> CanvasGroup:
+	return $CanvasGroup
 
 func set_avoidance_objects() -> void:
 	for child: CircleAvoidancePoint in $AvoidanceObjects.get_children():

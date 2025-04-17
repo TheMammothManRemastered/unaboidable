@@ -4,7 +4,7 @@
 [ext_resource type="PackedScene" uid="uid://boi3np5wy1gwn" path="res://boids/boid_types/boid_base.tscn" id="1_fvou3"]
 [ext_resource type="Texture2D" uid="uid://bsrjlcjxe7fse" path="res://art/fogging-bomb-373445508.jpg" id="2_86nkk"]
 
-[node name="BoidBase" instance=ExtResource("1_fvou3")]
+[node name="Bomboideer" instance=ExtResource("1_fvou3")]
 script = ExtResource("1_86nkk")
 
 [node name="CanvasGroup" parent="." index="0"]
