@@ -15,6 +15,7 @@ var control_lock := false
 var gravity_scale := 1.0
 var prevent_moves := false
 var hurt_override := false
+var animation_override := false
 var awaiting_hurt_override := false # set by the player on hurt if hurt_override is true
 
 func _init(player: Player):
@@ -68,6 +69,9 @@ func main_attack() -> void:
 	
 	control_lock = true
 	
+	animation_override = true
+	_p.player_sprite.play("punch")
+	
 	var direction = Input.get_vector("move_left", "move_right", "move_up", "move_down")
 	var distance = LUNGE_DISTANCE
 	if direction == Vector2.ZERO:
@@ -79,6 +83,7 @@ func main_attack() -> void:
 			direction = Vector2(randf_range(-1, 1), randf_range(-1, 1)).normalized()
 	
 	_p.velocity = Vector2.ZERO
+	if direction.x != 0: _p.facing_direction = sign(direction.x)
 	
 	var t = create_tween().set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_SPRING)
 	t.tween_method(_set_player_position, _p.position, _p.position + direction * distance, DECEL_TIME)
@@ -112,12 +117,15 @@ func dive_attack() -> void:
 	queue_free()
 
 func special_attack() -> void:
-	const CHARGE_TIME := .2
+	const CHARGE_TIME := .3
 	print("Special Attack")
 	
 	control_lock = true
 	hurt_override = true
 	_p.velocity = Vector2.ZERO
+	
+	animation_override = true
+	_p.player_sprite.play("dash_charge")
 	
 	var attack: ChargedDashAttack = load("res://player/attacks/charged_dash/charged_dash_attack.tscn").instantiate()
 	add_child(attack)
@@ -127,17 +135,26 @@ func special_attack() -> void:
 		var input = Input.get_vector("move_left", "move_right", "move_up", "move_down")
 		if input != Vector2.ZERO: direction = input.normalized()
 	
+	if direction.x != 0: _p.facing_direction = sign(direction.x)
+	
 	if direction.y > .2:
 		_p.new_coroutine().dive_attack()
 	else:
 		const ATK_DURATION := 0.3
 		const SWING_COUNT := 4
-		const SWING_INTERVAL := 0.08
+		const SWING_INTERVAL := 0.1
 		const SWING_DISTANCE := 190
 		attack.attack()
 		for i in range(SWING_COUNT):
 			if i != 0: await _timer(SWING_INTERVAL)
+			
 			_p.move_and_collide(direction * SWING_DISTANCE)
+			
+			var slice = preload("res://player/sprites/slices/slice.tscn").instantiate()
+			slice.index = i
+			slice.direction = direction
+			slice.position = _p.get_parent().to_local(_p.global_position)
+			_p.add_sibling(slice)
 		
 		const END_SPEED_X = 450
 		const END_SPEED_Y = 1200

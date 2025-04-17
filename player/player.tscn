@@ -1,4 +1,4 @@
-[gd_scene load_steps=32 format=3 uid="uid://bd52wxgkn7xto"]
+[gd_scene load_steps=37 format=3 uid="uid://bd52wxgkn7xto"]
 
 [ext_resource type="Script" uid="uid://btiy4yn0xs6yr" path="res://player/player.gd" id="1_qpvai"]
 [ext_resource type="Shader" uid="uid://cq7e3qax24kci" path="res://art/scribble/marker.gdshader" id="2_k7hww"]
@@ -10,13 +10,18 @@
 [ext_resource type="Texture2D" uid="uid://cg701namy701y" path="res://player/sprites/jump/crouch1.png" id="5_srll3"]
 [ext_resource type="Texture2D" uid="uid://d3v5vrppjeapy" path="res://player/sprites/running/run1.png" id="5_wo4hc"]
 [ext_resource type="Texture2D" uid="uid://boxoxsvmaoxrx" path="res://player/sprites/running/run2.png" id="6_4nqqa"]
+[ext_resource type="Texture2D" uid="uid://cpqm8nka6hodo" path="res://player/sprites/dash_charging/dc0002.png" id="7_7pqkx"]
 [ext_resource type="Texture2D" uid="uid://cxlc3fgc4866u" path="res://player/sprites/jump/jump0.png" id="7_8g4gc"]
 [ext_resource type="Texture2D" uid="uid://cair4k2vso5jy" path="res://player/sprites/running/run3.png" id="7_hs41j"]
 [ext_resource type="Texture2D" uid="uid://b47gwhhgh807h" path="res://player/sprites/jump/jump1.png" id="8_c7ypd"]
 [ext_resource type="Texture2D" uid="uid://blhdf6rqeva5b" path="res://player/sprites/running/run4.png" id="8_xtgfk"]
 [ext_resource type="Texture2D" uid="uid://hi1nocq0i5db" path="res://player/sprites/jump/jump2.png" id="9_7arcq"]
+[ext_resource type="Texture2D" uid="uid://cf2mjap51jaam" path="res://player/sprites/dash_charging/dc0004.png" id="9_rptt4"]
 [ext_resource type="Texture2D" uid="uid://dldb00ays2eyo" path="res://player/sprites/jump/jump3.png" id="10_nd1ql"]
+[ext_resource type="Texture2D" uid="uid://cvxnacixm5sv0" path="res://player/sprites/dash_charging/dc0005.png" id="10_r7pn3"]
+[ext_resource type="Texture2D" uid="uid://ct5wprwtv2eqg" path="res://player/sprites/dash_charging/dc0006.png" id="11_b8hi5"]
 [ext_resource type="Texture2D" uid="uid://cnntr0i2risy1" path="res://player/sprites/jump/jump4.png" id="11_ymppr"]
+[ext_resource type="Texture2D" uid="uid://ooh62vg1un4t" path="res://player/sprites/punch/punch_wip.png" id="16_g4c7l"]
 [ext_resource type="Texture2D" uid="uid://c83244jn6n7i7" path="res://player/sprites/wall/wall0.png" id="17_0bcis"]
 [ext_resource type="PackedScene" uid="uid://nb52cuutp7fm" path="res://player/attacks/hitting_area.tscn" id="19_x7c3f"]
 
@@ -51,6 +56,23 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
+"texture": ExtResource("7_7pqkx")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_rptt4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_r7pn3")
+}, {
+"duration": 1.0,
+"texture": ExtResource("11_b8hi5")
+}],
+"loop": false,
+"name": &"dash_charge",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
 "texture": ExtResource("4_jd6u2")
 }],
 "loop": true,
@@ -75,6 +97,14 @@ animations = [{
 }],
 "loop": false,
 "name": &"jump",
+"speed": 0.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("16_g4c7l")
+}],
+"loop": true,
+"name": &"punch",
 "speed": 0.0
 }, {
 "frames": [{
@@ -152,7 +182,7 @@ unique_name_in_owner = true
 position = Vector2(0, -108)
 scale = Vector2(0.483371, 0.483371)
 sprite_frames = SubResource("SpriteFrames_7keir")
-animation = &"idle"
+animation = &"punch"
 autoplay = "idle"
 
 [node name="Particles" parent="." instance=ExtResource("5_gfe0u")]
