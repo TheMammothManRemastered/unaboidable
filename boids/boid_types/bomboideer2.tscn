@@ -1,7 +1,7 @@
-[gd_scene load_steps=4 format=3 uid="uid://cb7umi0ltm2gk"]
+[gd_scene load_steps=4 format=3 uid="uid://dns556c2r36cx"]
 
-[ext_resource type="Script" uid="uid://hh6raswycj00" path="res://boids/boid_types/bomboideer.gd" id="1_86nkk"]
-[ext_resource type="Texture2D" uid="uid://bsrjlcjxe7fse" path="res://art/fogging-bomb-373445508.jpg" id="2_86nkk"]
+[ext_resource type="Script" uid="uid://hh6raswycj00" path="res://boids/boid_types/bomboideer.gd" id="1_0nc7t"]
+[ext_resource type="Texture2D" uid="uid://bsrjlcjxe7fse" path="res://art/fogging-bomb-373445508.jpg" id="2_23xej"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_sps27"]
 size = Vector2(24, 20.8033)
@@ -10,15 +10,14 @@ size = Vector2(24, 20.8033)
 scale = Vector2(2.38496, 2.38496)
 collision_layer = 4
 collision_mask = 2
-script = ExtResource("1_86nkk")
+script = ExtResource("1_0nc7t")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 scale = Vector2(0.00907563, 0.00907563)
-texture = ExtResource("2_86nkk")
+texture = ExtResource("2_23xej")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, -0.5)
-scale = Vector2(1, 1)
 shape = SubResource("RectangleShape2D_sps27")
 
 [connection signal="body_entered" from="." to="." method="_on_body_entered"]

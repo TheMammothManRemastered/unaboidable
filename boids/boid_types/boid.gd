@@ -17,6 +17,8 @@ func hurt(damage: int = 1) -> void:
 		die()
 
 func die() -> void:
+	if self.dead:
+		return
 	self.dead = true
 	SwarmOverlord.instance.queue_remove_boid(self)
 

@@ -19,7 +19,7 @@ shader_parameter/noise_texture = SubResource("NoiseTexture2D_ai8ok")
 shader_parameter/marker_texture = ExtResource("3_jihxv")
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_sps27"]
-size = Vector2(60, 92.5)
+size = Vector2(60, 71)
 
 [node name="BoidBase" type="StaticBody2D" groups=["boids"]]
 collision_layer = 8

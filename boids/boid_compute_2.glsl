@@ -99,16 +99,16 @@ layout(set = 0, binding = GLOBAL_GOALS_BINDING, std430) buffer GlobalGoalsBuffer
 
 // GLOBALLY APPLICABLE CALCULATIONS -- these functions are usable by boids of any type
 
+#define is_bomb_and_diving  (CURR_BOID_TYPE == 2 && CURR_BOID_MUTABLE.BOMB_stage == BOMB_STAGE_BOMB && CURR_BOID_VELOCITY.y > 0.0)
 void cap_speed() { // caps a boid to its type's maximum
     if (length(CURR_BOID_VELOCITY) > IMMUTABLE_TYPED(max_speed)) {
-        if (CURR_BOID_TYPE == 2 && CURR_BOID_MUTABLE.BOMB_stage == BOMB_STAGE_BOMB && CURR_BOID_VELOCITY.y > 0.0) {
-            return;
-        }   
-        else {
-            CURR_BOID_VELOCITY = normalize(CURR_BOID_VELOCITY) * IMMUTABLE_TYPED(max_speed);
+        CURR_BOID_VELOCITY = normalize(CURR_BOID_VELOCITY) * IMMUTABLE_TYPED(max_speed);
+        if (is_bomb_and_diving) {
+            CURR_BOID_VELOCITY *= 3.0;
         }
     }
 }
+#undef is_bomb_and_diving
 
 // TODO: refactor this so it works (sorta) like static avoidance objects, start turning away before we hit the border, don't even allow passing it
 vec2 calculate_boundary_vector() { // gets a vector to move the boid away from the world boundary. 
@@ -346,7 +346,7 @@ void determine_bomb_stage() {
 
 void main() {
     // specific typed stuff
-    if (CURR_BOID_TYPE == 2) {
+    if (CURR_BOID_TYPE == 2) { // update our bomb stage if we're a bomboideer
         determine_bomb_stage();
     }
 

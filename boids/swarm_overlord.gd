@@ -288,6 +288,10 @@ func retrieve_compute_data() -> void:
 		boid_mutable[curr_mutable_index] = mutable_ints[curr_mutable_index]
 		set_boid_mutable_data(boid_objects[i], curr_mutable_index)
 
+func sync_gpu() -> void:
+	if are_boids_present():
+		device.sync()
+
 
 
 # QUEUE OPERATIONS - boid adding/removal is handled here
@@ -295,9 +299,13 @@ var boid_add_queue = []
 var boid_remove_queue = []
 
 func queue_add_boid(b: Boid) -> void:
+	if boid_add_queue.has(b):
+		return
 	boid_add_queue.push_back(b)
 
 func queue_remove_boid(b: Boid) -> void:
+	if boid_remove_queue.has(b):
+		return
 	boid_remove_queue.push_back(b)
 
 func add_boid(b: Boid) -> void:
@@ -377,7 +385,7 @@ func _physics_process(delta: float) -> void:
 	#if ((frame_count % frames_per_swarm_synchronization) == 0 or boids_out_of_date):
 	process_queues()
 	update_compute_data(delta)
-	device.sync()
+	sync_gpu()
 	
 	retrieve_compute_data()
 	
