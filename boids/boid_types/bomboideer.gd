@@ -9,7 +9,7 @@ class_name BombBoid
 #     once they do this, they number themselves and, every X seconds, launch
 #     straight at the player at max speed. this is their attack. they go boom!
 
-static var max_speed: float = 100.0
+static var max_speed: float = 300.0
 static var separation_radius: float = 40
 static var separation_weight: float = 30
 static var alignment_radius: float = 125
@@ -24,3 +24,9 @@ static var class_id = 2
 static var boid_scene = preload("res://boids/boid_types/bomboideer.tscn")
 
 var bomb_stage: int = 0
+var prev_bomb_stage: int = -1
+
+func _process(delta: float) -> void:
+	if prev_bomb_stage != bomb_stage:
+		print(self, "advanced from stage ", prev_bomb_stage, " to ", bomb_stage)
+		prev_bomb_stage = bomb_stage

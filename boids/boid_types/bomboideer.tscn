@@ -1,10 +1,10 @@
 [gd_scene load_steps=4 format=3 uid="uid://cb7umi0ltm2gk"]
 
 [ext_resource type="Script" uid="uid://hh6raswycj00" path="res://boids/boid_types/bomboideer.gd" id="1_86nkk"]
-[ext_resource type="Texture2D" uid="uid://dyti57kj53o1b" path="res://boids/boid_triangle.png" id="2_l7gx7"]
+[ext_resource type="Texture2D" uid="uid://bsrjlcjxe7fse" path="res://art/fogging-bomb-373445508.jpg" id="2_86nkk"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_sps27"]
-size = Vector2(24, 37)
+size = Vector2(24, 20.8033)
 
 [node name="Bomboideer" type="Area2D"]
 scale = Vector2(2.38496, 2.38496)
@@ -13,11 +13,12 @@ collision_mask = 2
 script = ExtResource("1_86nkk")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
-scale = Vector2(0.165, 0.165)
-texture = ExtResource("2_l7gx7")
+scale = Vector2(0.00907563, 0.00907563)
+texture = ExtResource("2_86nkk")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, -0.5)
+scale = Vector2(1, 1)
 shape = SubResource("RectangleShape2D_sps27")
 
 [connection signal="body_entered" from="." to="." method="_on_body_entered"]
