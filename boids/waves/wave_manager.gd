@@ -17,12 +17,21 @@ func _ready() -> void:
 	add_child(timer)
 	timer.timeout.connect(_on_timeout)
 	timer.one_shot = false
+	
+	Globals.game_started.connect(_on_game_start)
+
+func _physics_process(delta: float) -> void:
+	if SwarmOverlord.instance.are_boids_present() or timer.time_left >= 0.0:
+		return
+	
+	timer.start(wave_interval)
+
+func _on_game_start() -> void:
 	timer.start(wave_interval)
 
 func _on_timeout() -> void:
 	print(SwarmOverlord.instance.boid_objects.size())
 	if SwarmOverlord.instance.are_boids_present():
-		timer.start(wave_interval)
 		return
 	
 	print("spawning wave ", curr_wave, " ", number_of_waves)
@@ -32,4 +41,3 @@ func _on_timeout() -> void:
 	
 	curr_wave = min(curr_wave + 1, number_of_waves - 1)
 	print("curr wave is now ", curr_wave)
-	timer.start(wave_interval)
