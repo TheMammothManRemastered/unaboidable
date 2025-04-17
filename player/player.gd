@@ -39,7 +39,6 @@ var active_coroutine: PlayerCoroutines
 @onready var left_wall_area: Area2D = %LeftWallArea
 @onready var right_wall_area: Area2D = %RightWallArea
 
-@onready var perry_attack: HittingArea = %PerryAttack
 @onready var dash_attack: HittingArea = %DashAttack
 
 static var instance: Player

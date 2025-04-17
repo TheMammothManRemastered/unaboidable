@@ -15,4 +15,13 @@ static var critical_mass: int = 4
 static var goal_weight: float = 12
 
 static var class_id = 0
-static var boid_scene = preload("res://boids/boid_types/simple_boid.tscn")
+static var boid_scene = preload("res://boids/boid_types/boid_simple.gd")
+
+const ATTACK_RANGE := 80.0
+@onready var anim: AnimationPlayer = %Anim
+
+func _physics_process(delta: float) -> void:
+	super._physics_process(delta)
+	
+	if Player.instance.global_position.distance_to(self.global_position) <= ATTACK_RANGE:
+		anim.play("attack")

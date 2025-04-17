@@ -18,7 +18,7 @@
 [ext_resource type="Texture2D" uid="uid://dldb00ays2eyo" path="res://player/sprites/jump/jump3.png" id="10_nd1ql"]
 [ext_resource type="Texture2D" uid="uid://cnntr0i2risy1" path="res://player/sprites/jump/jump4.png" id="11_ymppr"]
 [ext_resource type="Texture2D" uid="uid://c83244jn6n7i7" path="res://player/sprites/wall/wall0.png" id="17_0bcis"]
-[ext_resource type="Script" uid="uid://cfm14kxybd447" path="res://player/hitting_area.gd" id="19_c35mf"]
+[ext_resource type="PackedScene" uid="uid://nb52cuutp7fm" path="res://player/attacks/hitting_area.tscn" id="19_x7c3f"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_65lrr"]
 size = Vector2(96, 173)
@@ -127,11 +127,11 @@ point_count = 2
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_bnf15"]
 size = Vector2(28, 161)
 
-[sub_resource type="CircleShape2D" id="CircleShape2D_e7oew"]
-radius = 126.004
-
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_c35mf"]
 size = Vector2(80, 166)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_65viv"]
+size = Vector2(80, 170)
 
 [node name="Player" type="CharacterBody2D"]
 collision_layer = 2
@@ -228,22 +228,19 @@ debug_color = Color(0, 0.632114, 0.454988, 0.42)
 [node name="AttackHits" type="Node2D" parent="."]
 position = Vector2(0, -80)
 
-[node name="PerryAttack" type="Area2D" parent="AttackHits"]
+[node name="DashAttack" parent="AttackHits" instance=ExtResource("19_x7c3f")]
 unique_name_in_owner = true
-collision_layer = 0
-collision_mask = 8
-script = ExtResource("19_c35mf")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="AttackHits/PerryAttack"]
-shape = SubResource("CircleShape2D_e7oew")
-debug_color = Color(1, 0.00784314, 0.0588235, 0.0352941)
-
-[node name="DashAttack" type="Area2D" parent="AttackHits"]
-unique_name_in_owner = true
-collision_layer = 0
-collision_mask = 8
-script = ExtResource("19_c35mf")
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="AttackHits/DashAttack"]
+[node name="CollisionShape2D" parent="AttackHits/DashAttack" index="0"]
 shape = SubResource("RectangleShape2D_c35mf")
-debug_color = Color(1, 0.00784314, 0.0588235, 0.0352941)
+
+[node name="MainAttack" type="Node2D" parent="."]
+
+[node name="HittingArea" parent="MainAttack" instance=ExtResource("19_x7c3f")]
+position = Vector2(0, -80)
+
+[node name="CollisionShape2D" parent="MainAttack/HittingArea" index="0"]
+shape = SubResource("RectangleShape2D_65viv")
+
+[editable path="AttackHits/DashAttack"]
+[editable path="MainAttack/HittingArea"]

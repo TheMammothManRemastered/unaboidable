@@ -58,14 +58,13 @@ func _timer_step(seconds: float) -> bool:
 func _set_player_position(position: Vector2) -> void:
 	_p.move_and_collide(position - _p.position)
 
-func main_attack(depth := 1) -> void:
+func main_attack() -> void:
 	const MAX_HOME_DISTANCE := 500.0
 	const SPEED_PER_PX := 200.0
 	const LUNGE_DISTANCE := 300.0
 	const HOMING_EXTRA_DISTANCE := 40.0
 	const DECEL_TIME := 0.3
 	const FIXED_TIME := 0.2
-	const MAX_DEPTH := 3
 	
 	control_lock = true
 	
@@ -86,12 +85,6 @@ func main_attack(depth := 1) -> void:
 	
 	_p.dash_attack.long_hit(DECEL_TIME)
 	await _timer(FIXED_TIME)
-	
-	#while await _timer_step(END_LAG):
-		#if _buffered_action != ActionType.NONE: break
-	
-	if depth < MAX_DEPTH and _buffered_action == ActionType.PRIMARY:
-		_p.new_coroutine().main_attack(depth + 1)
 	
 	t.kill()
 	queue_free()
@@ -119,33 +112,46 @@ func dive_attack() -> void:
 	queue_free()
 
 func special_attack() -> void:
-	const PARRY_TIME := 0.5
+	const CHARGE_TIME := .2
 	print("Special Attack")
 	
 	control_lock = true
 	hurt_override = true
 	_p.velocity = Vector2.ZERO
 	
-	while await _timer_step(PARRY_TIME):
-		if awaiting_hurt_override:
-			_p.new_coroutine().special_perry()
-			queue_free()
-		else:
-			match _buffered_action:
-				ActionType.SPECIAL:
-					_p.new_coroutine().special_knives()
-					queue_free()
-				ActionType.PRIMARY:
-					_p.new_coroutine().special_explode()
-					queue_free()
-				ActionType.JUMP:
-					_p.new_coroutine().special_feather()
-					queue_free()
+	var attack: ChargedDashAttack = load("res://player/attacks/charged_dash/charged_dash_attack.tscn").instantiate()
+	add_child(attack)
+	
+	var direction = Input.get_vector("move_left", "move_right", "move_up", "move_down").normalized()
+	while await _timer_step(CHARGE_TIME):
+		var input = Input.get_vector("move_left", "move_right", "move_up", "move_down")
+		if input != Vector2.ZERO: direction = input.normalized()
+	
+	if direction.y > .2:
+		_p.new_coroutine().dive_attack()
+	else:
+		const ATK_DURATION := 0.3
+		const SWING_COUNT := 4
+		const SWING_INTERVAL := 0.08
+		const SWING_DISTANCE := 190
+		attack.attack()
+		for i in range(SWING_COUNT):
+			if i != 0: await _timer(SWING_INTERVAL)
+			_p.move_and_collide(direction * SWING_DISTANCE)
+		
+		const END_SPEED_X = 450
+		const END_SPEED_Y = 1200
+		_p.velocity.x = direction.x * END_SPEED_X
+		_p.velocity.y = direction.y * END_SPEED_Y
+	
+	print("attacking!")
+	
 	queue_free()
 
 func special_perry() -> void:
-	print("perry!")
-	_p.perry_attack.hit()
+	pass
+	#print("perry!")
+	#_p.perry_attack.hit()
 
 func special_knives() -> void:
 	#const MAX_DIST := 1000.0

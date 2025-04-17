@@ -337,8 +337,8 @@ func process_queues() -> void:
 
 
 # this is a debug function
-var boid_scene = preload("res://boids/boid_types/simple_boid.tscn")
-var boid_scene2 = preload("res://boids/boid_types/stupid_boid.tscn")
+var boid_scene = preload("res://boids/boid_types/boid_simple.tscn")
+var boid_scene2 = preload("res://boids/boid_types/boid_stupid.tscn")
 func spawn_some_boids(boids_to_spawn, spacing) -> void:
 	for i in range(10):
 		var b: Boid = BombBoid.boid_scene.instantiate()
