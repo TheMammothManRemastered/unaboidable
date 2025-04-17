@@ -16,13 +16,14 @@ var boid_objects: Array[Boid] = []
 var avoidance_objects: Array[CircleAvoidancePoint] = []
 # array of every boid type possible, will be used when sending uniforms to the compute shader
 var all_possible_boid_types = [
-	SimpleBoid, StupidBoid
+	SimpleBoid, StupidBoid, BombBoid
 ]
 # these arrays are transformed into data for the compute shader
 # keeping them packed is convenient for that purpose
 var boid_positions: PackedVector2Array = PackedVector2Array([])
 var boid_velocities: PackedVector2Array = PackedVector2Array([])
 var boid_types: PackedInt32Array = PackedInt32Array([])
+var boid_mutable: PackedInt32Array = PackedInt32Array([])
 # uniform values to be sent to the compute shader
 @export var max_speed: float = 500.0
 @export var boundaries: Vector2 = Vector2(600, 300)
@@ -51,6 +52,8 @@ var avoidance_objects_buffer: RID
 var avoidance_objects_uniform: RDUniform
 var boid_uniforms_buffer: RID
 var boid_uniforms_uniform: RDUniform # this name is terrible, why did I call it this?
+var boid_mutable_buffer: RID
+var boid_mutable_uniform: RDUniform
 var immutable_type_data_buffer: RID
 var immutable_type_data_uniform: RDUniform
 var global_goals_buffer: RID
@@ -73,6 +76,26 @@ func create_int32_buffer(packed_array: PackedInt32Array) -> RID:
 	var bytes: PackedByteArray = packed_array.to_byte_array()
 	return device.storage_buffer_create(bytes.size(), bytes)
 
+func get_bomboideer_mutable_data(b: BombBoid) -> Array[int]:
+	return [b.bomb_stage]
+
+func get_boid_mutable_data(b: Object) -> Array[int]:
+	if b.class_id == 2:
+		return get_bomboideer_mutable_data(b)
+	
+	return [0]
+
+func set_bomboideer_mutable_data(b: BombBoid, i: int):
+	b.bomb_stage = boid_mutable.get(i)
+
+func set_boid_mutable_data(b: Object, i: int):
+	if b.class_id == 2:
+		set_bomboideer_mutable_data(b, i)
+
+func set_all_mutable_data():
+	for i in range(boid_objects.size()):
+		set_boid_mutable_data(boid_objects[i], i)
+
 func create_boid_uniforms_buffer(delta: float) -> RID:
 	# NOTE: these should be filled out in the SAME ORDER as specified in the compute shader!
 	return create_float_buffer([
@@ -84,14 +107,24 @@ func create_boid_uniforms_buffer(delta: float) -> RID:
 		global_position.y,
 		boundary_weight,
 		delta,
-		float(1 + $GoalPoints.get_child_count())
+		float(2 + $GoalPoints.get_child_count())
 	])
+
+func calc_bomb_goal_x() -> float:
+	return Player.instance.global_position.x
+
+func calc_bomb_goal_y() -> float:
+	return -456.0
+
 
 func create_global_goals_buffer() -> RID:
 	# the global goals buffer will always have the player's position in index 0
 	# ideally we'd have several more points for boids to retreat to after hitting the player
 	var player_position: Vector2 = Player.instance.global_position
-	var float_positions: Array[float] = [player_position.x, player_position.y]
+	var float_positions: Array[float] = [
+		player_position.x, player_position.y,
+		calc_bomb_goal_x(), calc_bomb_goal_y()
+	]
 	for c in $GoalPoints.get_children():
 		var goal: Vector2 = (c as Node2D).global_position
 		float_positions.append(goal.x)
@@ -176,6 +209,7 @@ func setup_bindings() -> void:
 	boid_uniforms_uniform = create_empty_uniform(RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER, UNIFORMS_UNIFORM_BINDING)
 	boid_types_uniform = create_empty_uniform(RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER, TYPE_UNIFORM_BINDING)
 	global_goals_uniform = create_empty_uniform(RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER, GLOBAL_GOALS_UNIFORM_BINDING)
+	boid_mutable_uniform = create_empty_uniform(RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER, MUTABLE_BOID_DATA_UNIFORM_BINDING)
 	
 	setup_avoidance_uniform()
 	setup_immutable_type_data_uniform()
@@ -183,7 +217,7 @@ func setup_bindings() -> void:
 	bindings = [boid_positions_uniform, boid_velocities_uniform, 
 		boid_types_uniform, avoidance_objects_uniform, 
 		boid_uniforms_uniform, immutable_type_data_uniform, 
-		global_goals_uniform]
+		global_goals_uniform, boid_mutable_uniform]
 
 func set_uniform(uniform: RDUniform, resource: RID) -> void:
 	var to_clear = uniform.get_ids()
@@ -205,6 +239,10 @@ func update_compute_data(delta: float) -> void:
 		
 		boid_types_buffer = create_int32_buffer(boid_types)
 		set_uniform(boid_types_uniform, boid_types_buffer)
+		
+		boid_mutable_buffer = create_int32_buffer(boid_mutable)
+		set_uniform(boid_mutable_uniform, boid_mutable_buffer)
+		
 		boids_out_of_date = false
 	
 	global_goals_buffer = create_global_goals_buffer()
@@ -232,6 +270,9 @@ func retrieve_compute_data() -> void:
 	var velocities_bytes: PackedByteArray = device.buffer_get_data(boid_velocities_buffer)
 	var velocities_floats: PackedFloat32Array = velocities_bytes.to_float32_array()
 	
+	var mutable_bytes: PackedByteArray = device.buffer_get_data(boid_mutable_buffer)
+	var mutable_ints: PackedInt32Array = mutable_bytes.to_int32_array()
+	
 	# types are never gonna get changed in-shader, nor will immutable type data, so we don't retrieve them
 	
 	for i in range(0, boid_objects.size()):
@@ -239,10 +280,13 @@ func retrieve_compute_data() -> void:
 			return
 		var curr_position: Vector2 = Vector2(positions_floats[i * 2], positions_floats[i * 2 + 1])
 		var curr_velocity: Vector2 = Vector2(velocities_floats[i * 2], velocities_floats[i * 2 + 1])
+		var curr_mutable_index: int = i
 		boid_objects[i].global_position = curr_position
 		boid_objects[i].velocity = curr_velocity
 		boid_positions[i] = curr_position
 		boid_velocities[i] = curr_velocity
+		boid_mutable[curr_mutable_index] = mutable_ints[curr_mutable_index]
+		set_boid_mutable_data(boid_objects[i], curr_mutable_index)
 
 
 
@@ -261,6 +305,9 @@ func add_boid(b: Boid) -> void:
 	boid_positions.append(b.global_position)
 	boid_velocities.append(b.velocity)
 	boid_types.append(b.class_id)
+	var mut = get_boid_mutable_data(b)
+	for u in mut:
+		boid_mutable.append(u)
 	boids_out_of_date = true
 
 func remove_boid(b: Boid) -> void:
@@ -271,6 +318,8 @@ func remove_boid(b: Boid) -> void:
 	boid_positions.remove_at(i)
 	boid_velocities.remove_at(i)
 	boid_types.remove_at(i)
+	# TODO: write down how big these are, this will surely be issueful later
+	boid_mutable.remove_at(i * 1)
 	boids_out_of_date = true
 
 func process_queues() -> void:
@@ -291,8 +340,8 @@ func process_queues() -> void:
 var boid_scene = preload("res://boids/boid_types/simple_boid.tscn")
 var boid_scene2 = preload("res://boids/boid_types/stupid_boid.tscn")
 func spawn_some_boids(boids_to_spawn, spacing) -> void:
-	for i in range(boids_to_spawn):
-		var b: Boid = boid_scene2.instantiate() if randf_range(0.0, 1.0) > 0.5 else boid_scene.instantiate()
+	for i in range(10):
+		var b: Boid = BombBoid.boid_scene.instantiate()
 		b.global_position = Vector2(0, 0)
 		var w = spacing.x / 2.0
 		var h = spacing.y / 2.0

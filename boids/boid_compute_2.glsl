@@ -22,6 +22,14 @@
 
 #define IMMUTABLE_TYPED(symbol) (immutable_type_data.data[CURR_BOID_TYPE].symbol)
 
+#define GOAL_PLAYER                 (0)
+#define GOAL_PLAYER_THERMOSPHERE    (1)
+
+#define BOMB_STAGE_FIND_FLOCK   (0)
+#define BOMB_STAGE_FIND_PLAYER  (1)
+#define BOMB_STAGE_READY        (2)
+#define BOMB_STAGE_BOMB         (3)
+
 // Invocations in the (x, y, z) dimension
 // since we deal with a 1d array of boids, there's no real reason to 
 // stray from a single dimension. 
@@ -39,12 +47,11 @@ layout(set = 0, binding = BOID_TYPES_BINDING, std430) buffer TypeBuffer {
 } boid_types;
 // holds persistent, mutable data for each boid. needs to hold all info any boid may need (this is for convenience's sake)
 struct BoidDataObject {
-    int placeholder; // unused, only here so the shader compiles
+    int BOMB_stage;
 };
-// TODO: implement this on godot's side
-/* layout(set = 0, binding = BOID_MUTABLE_BINDING, std430) buffer MutableBuffer { 
+layout(set = 0, binding = BOID_MUTABLE_BINDING, std430) buffer MutableBuffer { 
     BoidDataObject data[];
-} mutable_boid_data; */
+} mutable_boid_data;
 
 struct AvoidanceObject {
     vec2 position;
@@ -94,7 +101,12 @@ layout(set = 0, binding = GLOBAL_GOALS_BINDING, std430) buffer GlobalGoalsBuffer
 
 void cap_speed() { // caps a boid to its type's maximum
     if (length(CURR_BOID_VELOCITY) > IMMUTABLE_TYPED(max_speed)) {
-        CURR_BOID_VELOCITY = normalize(CURR_BOID_VELOCITY) * IMMUTABLE_TYPED(max_speed);
+        if (CURR_BOID_TYPE == 2 && CURR_BOID_MUTABLE.BOMB_stage == BOMB_STAGE_BOMB && CURR_BOID_VELOCITY.y > 0.0) {
+            return;
+        }   
+        else {
+            CURR_BOID_VELOCITY = normalize(CURR_BOID_VELOCITY) * IMMUTABLE_TYPED(max_speed);
+        }
     }
 }
 
@@ -218,10 +230,54 @@ vec2 calculate_avoidance_object_vector() { // avoidance stage - boids don't want
     return avoidance_object_vector * 20.0; // TODO: this should be a uniform
 }
 
+bool curr_pos_at_or_near_point(vec2 point, float radius) {
+    float d = distance(point, CURR_BOID_POSITION);
+    return d <= radius;
+}
+
+vec2 calculate_bomb_goal_vector() {
+    vec2 goal_vector = vec2(0.0, 0.0);
+    vec2 flock_average = vec2(0.0, 0.0);
+    int n = 0;
+
+    if (CURR_BOID_MUTABLE.BOMB_stage == BOMB_STAGE_FIND_FLOCK) {
+        return vec2(0.0, 0.0);
+    }
+    else if (CURR_BOID_MUTABLE.BOMB_stage == BOMB_STAGE_FIND_PLAYER || CURR_BOID_MUTABLE.BOMB_stage == BOMB_STAGE_READY) {
+        // target the thermosphere above the player
+        for (int i = 0; i < uniforms.num_boids; i++) {
+            if (i == CURR_BOID_INDEX) {
+                continue;
+            }
+
+            float d = distance(CURR_BOID_POSITION, BOID_POSITION(i));
+            if (d < IMMUTABLE_TYPED(alignment_radius)) { // NOTE: this should be tunable i think
+                flock_average += BOID_POSITION(i);
+                n++;
+            }
+        }
+
+        flock_average /= float(n);
+        goal_vector = normalize(global_goals.data[1] - flock_average);
+
+        return goal_vector * IMMUTABLE_TYPED(goal_weight);
+    }
+    else {
+        // fire!!!!
+        goal_vector = normalize(global_goals.data[0] - CURR_BOID_POSITION);
+
+        return goal_vector * IMMUTABLE_TYPED(goal_weight) * 40.0;   
+    }
+}
+
 vec2 calculate_goal_vector() { // goal-seeking - boids want to go somewhere specific
     vec2 goal_vector = vec2(0.0, 0.0);
     vec2 flock_average = vec2(0.0, 0.0);
     int n = 0;
+
+    if (CURR_BOID_TYPE == 2) {
+        return calculate_bomb_goal_vector();
+    }
 
     // get our number of flockmates and the average position of the flock
     for (int i = 0; i < uniforms.num_boids; i++) {
@@ -229,8 +285,8 @@ vec2 calculate_goal_vector() { // goal-seeking - boids want to go somewhere spec
             continue;
         }
 
-        float distance = distance(CURR_BOID_POSITION, BOID_POSITION(i));
-        if (distance < IMMUTABLE_TYPED(alignment_radius)) { // NOTE: this should be tunable i think
+        float d = distance(CURR_BOID_POSITION, BOID_POSITION(i));
+        if (d < IMMUTABLE_TYPED(alignment_radius)) { // NOTE: this should be tunable i think
             flock_average += BOID_POSITION(i);
             n++;
         }
@@ -247,12 +303,52 @@ vec2 calculate_goal_vector() { // goal-seeking - boids want to go somewhere spec
     return goal_vector * IMMUTABLE_TYPED(goal_weight);
 }
 
+void determine_bomb_stage() {
+    int n = 0;
+    int readies = 0;
+
+    for (int i = 0; i < uniforms.num_boids; i++) {
+        if (i == CURR_BOID_INDEX) {
+            continue;
+        }
+
+        float d = distance(CURR_BOID_POSITION, BOID_POSITION(i));
+        if (d < IMMUTABLE_TYPED(alignment_radius)) {
+            n++;
+            readies++;
+        }
+    }
+
+    if (CURR_BOID_MUTABLE.BOMB_stage == BOMB_STAGE_FIND_FLOCK) {
+        // if we have more than critical mass then we're all peachy keen
+        // peachy keen? what am I 50?
+        if (n >= IMMUTABLE_TYPED(critical_mass)) {
+            CURR_BOID_MUTABLE.BOMB_stage = BOMB_STAGE_FIND_PLAYER;
+        }
+    }
+    else if (CURR_BOID_MUTABLE.BOMB_stage == BOMB_STAGE_FIND_PLAYER) {
+        // we're good if we ever enter the player's zone
+        if (curr_pos_at_or_near_point(global_goals.data[1], 80.0)) {
+            CURR_BOID_MUTABLE.BOMB_stage = BOMB_STAGE_READY;
+        }
+    }
+    // we can advance to the next stage immediately if we're all in the zone
+    if (CURR_BOID_MUTABLE.BOMB_stage == BOMB_STAGE_READY) {
+        // if we're all ready and nearby, commence attack run
+        if (readies >= IMMUTABLE_TYPED(critical_mass)) {
+            CURR_BOID_MUTABLE.BOMB_stage = BOMB_STAGE_BOMB;
+        }
+    }
+}
 
 
 
 
 void main() {
     // specific typed stuff
+    if (CURR_BOID_TYPE == 2) {
+        determine_bomb_stage();
+    }
 
     // common to all boids
     CURR_BOID_VELOCITY += calculate_boundary_vector() + calculate_cohesion_vector()
