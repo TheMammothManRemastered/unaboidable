@@ -69,6 +69,9 @@ func main_attack() -> void:
 	
 	control_lock = true
 	
+	animation_override = true
+	_p.player_sprite.play("punch")
+	
 	var direction = Input.get_vector("move_left", "move_right", "move_up", "move_down")
 	var distance = LUNGE_DISTANCE
 	if direction == Vector2.ZERO:
@@ -80,6 +83,7 @@ func main_attack() -> void:
 			direction = Vector2(randf_range(-1, 1), randf_range(-1, 1)).normalized()
 	
 	_p.velocity = Vector2.ZERO
+	if direction.x != 0: _p.facing_direction = sign(direction.x)
 	
 	var t = create_tween().set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_SPRING)
 	t.tween_method(_set_player_position, _p.position, _p.position + direction * distance, DECEL_TIME)
