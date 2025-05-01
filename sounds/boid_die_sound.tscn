@@ -1,0 +1,16 @@
+[gd_scene load_steps=6 format=3 uid="uid://c36gf2rmbwwkk"]
+
+[ext_resource type="AudioStream" uid="uid://bswdp3s3emft2" path="res://sounds/hit1.wav" id="1_d5wt8"]
+[ext_resource type="AudioStream" uid="uid://c5xf7r65n2gxw" path="res://sounds/hit2.wav" id="2_d5wt8"]
+[ext_resource type="AudioStream" uid="uid://44xp1tgd26i4" path="res://sounds/hit3.wav" id="3_ge3hr"]
+[ext_resource type="AudioStream" uid="uid://6gjfvep2e063" path="res://sounds/hit4.wav" id="4_d5wt8"]
+
+[sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_ichdq"]
+streams_count = 4
+stream_0/stream = ExtResource("1_d5wt8")
+stream_1/stream = ExtResource("2_d5wt8")
+stream_2/stream = ExtResource("3_ge3hr")
+stream_3/stream = ExtResource("4_d5wt8")
+
+[node name="BoidDieSound" type="AudioStreamPlayer"]
+stream = SubResource("AudioStreamRandomizer_ichdq")

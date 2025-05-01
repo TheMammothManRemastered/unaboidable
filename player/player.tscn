@@ -1,4 +1,4 @@
-[gd_scene load_steps=52 format=3 uid="uid://bd52wxgkn7xto"]
+[gd_scene load_steps=57 format=3 uid="uid://bd52wxgkn7xto"]
 
 [ext_resource type="Script" uid="uid://btiy4yn0xs6yr" path="res://player/player.gd" id="1_qpvai"]
 [ext_resource type="Shader" uid="uid://cq7e3qax24kci" path="res://art/scribble/marker.gdshader" id="2_k7hww"]
@@ -38,6 +38,10 @@
 [ext_resource type="Texture2D" uid="uid://duqdsgwse3350" path="res://player/sprites/punch/uppercut/uc2.png" id="18_r7pn3"]
 [ext_resource type="Texture2D" uid="uid://bs0yjo5wl10au" path="res://player/sprites/punch/uppercut/uc3.png" id="19_b8hi5"]
 [ext_resource type="PackedScene" uid="uid://nb52cuutp7fm" path="res://player/attacks/hitting_area.tscn" id="19_x7c3f"]
+[ext_resource type="AudioStream" uid="uid://bgn23rq41uc6m" path="res://sounds/punch3.wav" id="39_55jnj"]
+[ext_resource type="AudioStream" uid="uid://cinoe8s67m3o6" path="res://sounds/punch1.wav" id="39_a2xo5"]
+[ext_resource type="AudioStream" uid="uid://dxvuyvdeb0tkn" path="res://sounds/punch2.wav" id="40_art4l"]
+[ext_resource type="AudioStream" uid="uid://cs4nbg3qwtwij" path="res://sounds/player_die.wav" id="42_art4l"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_65lrr"]
 size = Vector2(82, 157)
@@ -242,6 +246,12 @@ size = Vector2(80, 166)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_65viv"]
 size = Vector2(80, 170)
 
+[sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_gswnw"]
+streams_count = 3
+stream_0/stream = ExtResource("39_a2xo5")
+stream_1/stream = ExtResource("40_art4l")
+stream_2/stream = ExtResource("39_55jnj")
+
 [node name="Player" type="CharacterBody2D"]
 collision_layer = 2
 script = ExtResource("1_qpvai")
@@ -349,6 +359,24 @@ max_hits = 1
 
 [node name="CollisionShape2D" parent="AttackHits/MainAttack" index="0"]
 shape = SubResource("RectangleShape2D_65viv")
+
+[node name="Sounds" type="Node2D" parent="."]
+
+[node name="PunchSound" type="AudioStreamPlayer2D" parent="Sounds"]
+unique_name_in_owner = true
+stream = SubResource("AudioStreamRandomizer_gswnw")
+max_polyphony = 4
+
+[node name="JumpSound" type="AudioStreamPlayer2D" parent="Sounds"]
+unique_name_in_owner = true
+stream = ExtResource("39_55jnj")
+max_polyphony = 4
+
+[node name="DieSound" type="AudioStreamPlayer2D" parent="Sounds"]
+unique_name_in_owner = true
+stream = ExtResource("42_art4l")
+volume_db = 3.0
+max_polyphony = 4
 
 [editable path="AttackHits/DashAttack"]
 [editable path="AttackHits/MainAttack"]

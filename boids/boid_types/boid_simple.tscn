@@ -1,9 +1,10 @@
-[gd_scene load_steps=14 format=3 uid="uid://c1jiu6sovcp1q"]
+[gd_scene load_steps=15 format=3 uid="uid://c1jiu6sovcp1q"]
 
 [ext_resource type="PackedScene" uid="uid://boi3np5wy1gwn" path="res://boids/boid_types/boid_base.tscn" id="1_v7tj3"]
 [ext_resource type="Script" uid="uid://cseja5achsols" path="res://boids/boid_types/boid_simple.gd" id="2_y3ctr"]
 [ext_resource type="Shader" uid="uid://cq7e3qax24kci" path="res://art/scribble/marker.gdshader" id="3_wac2t"]
 [ext_resource type="Texture2D" uid="uid://bagnkt67v3352" path="res://art/scribble/marker_texture_black.png" id="4_axfo4"]
+[ext_resource type="AudioStream" uid="uid://dot4uce3sw2ym" path="res://sounds/enemy_atk.wav" id="5_y3ctr"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_0fon1"]
 frequency = 0.0051
@@ -132,6 +133,21 @@ tracks/3/keys = {
 "update": 0,
 "values": [Vector2(-2.842, 3.108), Vector2(1.266, -0.254), Vector2(3.099, 2.997), Vector2(-2.158, -1.065), Vector2(-2.768, 4.029), Vector2(-2.842, 3.108), Vector2(1.266, -0.254), Vector2(0, 0)]
 }
+tracks/4/type = "audio"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("AttackSound")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"clips": [{
+"end_offset": 0.0,
+"start_offset": 0.0,
+"stream": ExtResource("5_y3ctr")
+}],
+"times": PackedFloat32Array(0)
+}
+tracks/4/use_blend = true
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_akk2m"]
 _data = {
@@ -178,5 +194,7 @@ root_node = NodePath("../..")
 libraries = {
 &"": SubResource("AnimationLibrary_akk2m")
 }
+
+[node name="AttackSound" type="AudioStreamPlayer2D" parent="." index="3"]
 
 [connection signal="body_entered" from="Attack/HurtArea" to="." method="_on_hurt_area_body_entered"]

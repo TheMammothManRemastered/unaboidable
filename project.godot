@@ -18,6 +18,7 @@ run/max_fps=24
 [autoload]
 
 Globals="*res://globals.gd"
+BoidDieSound="*res://sounds/boid_die_sound.tscn"
 
 [display]
 

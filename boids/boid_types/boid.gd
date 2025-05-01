@@ -21,6 +21,8 @@ func die() -> void:
 		return
 	self.dead = true
 	SwarmOverlord.instance.queue_remove_boid(self)
+	
+	BoidDieSound.play()
 
 func on_overlord_added() -> void:
 	pass

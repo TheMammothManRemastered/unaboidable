@@ -42,6 +42,10 @@ var active_coroutine: PlayerCoroutines
 @onready var dash_attack: HittingArea = %DashAttack
 @onready var main_attack: HittingArea = %MainAttack
 
+@onready var punch_sound: AudioStreamPlayer2D = %PunchSound
+@onready var jump_sound: AudioStreamPlayer2D = %JumpSound
+@onready var die_sound: AudioStreamPlayer2D = %DieSound
+
 var is_dead := false
 
 static var instance: Player
@@ -122,6 +126,7 @@ func movement_update(delta: float) -> void:
 		var jump_progress = min(jump_charge_time / JUMP_MAX_CHARGE_TIME, 1.0)
 		var jump_force = lerp(JUMP_MIN, JUMP_MAX, jump_progress)
 		velocity.y = -jump_force
+		jump_sound.play()
 		jump_particles.restart()
 	
 	# 	- jump charge
@@ -201,6 +206,8 @@ func wall_jump(normal: int) -> void:
 	wall_jump_particles.restart()
 
 func hurt(damage: int = 1) -> void:
+	if is_dead: return
+	
 	# perry stuff. i think this can be removed now but eh
 	if active_coroutine != null and active_coroutine.hurt_override != null:
 		active_coroutine.awaiting_hurt_override
@@ -211,6 +218,8 @@ func hurt(damage: int = 1) -> void:
 	is_dead = true
 	velocity.y = -DEAD_FLING_FORCE
 	Engine.time_scale = 0.5
+	
+	die_sound.play()
 
 func new_coroutine() -> PlayerCoroutines:
 	if active_coroutine != null:

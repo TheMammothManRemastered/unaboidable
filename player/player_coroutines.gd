@@ -68,6 +68,8 @@ func main_attack() -> void:
 	
 	control_lock = true
 	
+	_p.punch_sound.play()
+	
 	var direction = Input.get_vector("move_left", "move_right", "move_up", "move_down")
 	var distance = LUNGE_DISTANCE
 	if direction == Vector2.ZERO:
@@ -114,6 +116,8 @@ func main_attack() -> void:
 
 func dive_attack() -> void:
 	gravity_scale = 0.0
+	
+	_p.punch_sound.play()
 	
 	var lr = Input.get_axis("move_left", "move_right")
 	var direction = Vector2(lr, 2)
@@ -166,6 +170,7 @@ func special_attack() -> void:
 		for i in range(SWING_COUNT):
 			if i != 0: await _timer(SWING_INTERVAL)
 			
+			_p.punch_sound.play()
 			_p.move_and_collide(direction * SWING_DISTANCE)
 			
 			var slice = preload("res://player/sprites/slices/slice.tscn").instantiate()
