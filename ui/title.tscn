@@ -8,14 +8,14 @@
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_akk2m"]
 frequency = 0.0051
 
-[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_uvdcl"]
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_8lx1x"]
 seamless = true
 noise = SubResource("FastNoiseLite_akk2m")
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_dqqhb"]
 shader = ExtResource("1_5w2xo")
 shader_parameter/noise_scale = 0.003
-shader_parameter/noise_texture = SubResource("NoiseTexture2D_uvdcl")
+shader_parameter/noise_texture = SubResource("NoiseTexture2D_8lx1x")
 shader_parameter/marker_texture = ExtResource("2_8lx1x")
 
 [sub_resource type="LabelSettings" id="LabelSettings_b2suy"]

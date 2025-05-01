@@ -35,6 +35,9 @@ func _on_timeout() -> void:
 		return
 	
 	print("spawning wave ", curr_wave, " ", number_of_waves)
+	WaveDisplay.instance.display_wave(curr_wave+1)
+	
+	await get_tree().create_timer(.66, false).timeout
 	
 	var wave: Wave = get_children()[curr_wave]
 	wave.spawn_all()

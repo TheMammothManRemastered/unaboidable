@@ -1,0 +1,46 @@
+[gd_scene load_steps=9 format=3 uid="uid://8d7vsx0aa76s"]
+
+[ext_resource type="FontFile" uid="uid://bu1kb4ofjm78k" path="res://fonts/PermanentMarker-Regular.ttf" id="1_2qjy5"]
+[ext_resource type="Script" uid="uid://duipiv1jfmfkq" path="res://wave_display/wave_display.gd" id="1_78kjn"]
+[ext_resource type="Shader" uid="uid://cq7e3qax24kci" path="res://art/scribble/marker.gdshader" id="2_u8dxs"]
+[ext_resource type="Texture2D" uid="uid://bagnkt67v3352" path="res://art/scribble/marker_texture_black.png" id="3_3f51c"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_qysvl"]
+frequency = 0.0051
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_uvdcl"]
+seamless = true
+noise = SubResource("FastNoiseLite_qysvl")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_juqhm"]
+shader = ExtResource("2_u8dxs")
+shader_parameter/noise_scale = 0.003
+shader_parameter/noise_texture = SubResource("NoiseTexture2D_uvdcl")
+shader_parameter/marker_texture = ExtResource("3_3f51c")
+
+[sub_resource type="LabelSettings" id="LabelSettings_vwanw"]
+font = ExtResource("1_2qjy5")
+font_size = 100
+font_color = Color(0, 0, 0, 1)
+
+[node name="WaveDisplay" type="CanvasLayer"]
+script = ExtResource("1_78kjn")
+
+[node name="CanvasGroup" type="CanvasGroup" parent="."]
+material = SubResource("ShaderMaterial_juqhm")
+
+[node name="Label" type="Label" parent="CanvasGroup"]
+unique_name_in_owner = true
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = 381.0
+offset_top = 253.0
+offset_right = 767.0
+offset_bottom = 396.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "WAVE 5"
+label_settings = SubResource("LabelSettings_vwanw")
