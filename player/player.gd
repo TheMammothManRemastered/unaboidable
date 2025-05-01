@@ -42,12 +42,18 @@ var active_coroutine: PlayerCoroutines
 @onready var dash_attack: HittingArea = %DashAttack
 @onready var main_attack: HittingArea = %MainAttack
 
+var is_dead := false
+
 static var instance: Player
 
 func _init() -> void:
 	instance = self
 
 func _process(delta: float) -> void:
+	if is_dead:
+		dead_update(delta)
+		return
+	
 	if not control_locked():
 		movement_update(delta)
 		walljump_update(delta)
@@ -88,6 +94,20 @@ func _process(delta: float) -> void:
 	else: time_on_floor = 0.0
 
 	# finalize
+	move_and_slide()
+
+func dead_update(delta: float) -> void:
+	visuals.scale = Vector2.ONE # remove squish
+	
+	if is_on_floor():
+		velocity = Vector2.ZERO
+		if player_sprite.animation != "dead_floor":
+			player_sprite.play("dead_floor")
+	else:
+		if player_sprite.animation != "dead_falling":
+			player_sprite.play("dead_falling")
+	
+	velocity.y += GRAVITY_NORMAL * delta
 	move_and_slide()
 
 func movement_update(delta: float) -> void:
@@ -181,13 +201,16 @@ func wall_jump(normal: int) -> void:
 	wall_jump_particles.restart()
 
 func hurt(damage: int = 1) -> void:
-	print("player was hurt!")
-	
+	# perry stuff. i think this can be removed now but eh
 	if active_coroutine != null and active_coroutine.hurt_override != null:
 		active_coroutine.awaiting_hurt_override
 		return
 	
-	print("ouch!")
+	const DEAD_FLING_FORCE := 500.0
+	
+	is_dead = true
+	velocity.y = -DEAD_FLING_FORCE
+	Engine.time_scale = 0.5
 
 func new_coroutine() -> PlayerCoroutines:
 	if active_coroutine != null:

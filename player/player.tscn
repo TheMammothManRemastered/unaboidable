@@ -1,4 +1,4 @@
-[gd_scene load_steps=45 format=3 uid="uid://bd52wxgkn7xto"]
+[gd_scene load_steps=52 format=3 uid="uid://bd52wxgkn7xto"]
 
 [ext_resource type="Script" uid="uid://btiy4yn0xs6yr" path="res://player/player.gd" id="1_qpvai"]
 [ext_resource type="Shader" uid="uid://cq7e3qax24kci" path="res://art/scribble/marker.gdshader" id="2_k7hww"]
@@ -17,10 +17,16 @@
 [ext_resource type="Texture2D" uid="uid://blhdf6rqeva5b" path="res://player/sprites/running/run4.png" id="8_xtgfk"]
 [ext_resource type="Texture2D" uid="uid://hi1nocq0i5db" path="res://player/sprites/jump/jump2.png" id="9_7arcq"]
 [ext_resource type="Texture2D" uid="uid://cf2mjap51jaam" path="res://player/sprites/dash_charging/dc0004.png" id="9_rptt4"]
+[ext_resource type="Texture2D" uid="uid://c81eklv3phh8g" path="res://player/sprites/dead/d0.png" id="10_1so5t"]
 [ext_resource type="Texture2D" uid="uid://dldb00ays2eyo" path="res://player/sprites/jump/jump3.png" id="10_nd1ql"]
 [ext_resource type="Texture2D" uid="uid://cvxnacixm5sv0" path="res://player/sprites/dash_charging/dc0005.png" id="10_r7pn3"]
+[ext_resource type="Texture2D" uid="uid://rk0brx1olw75" path="res://player/sprites/dead/d1.png" id="11_55jnj"]
 [ext_resource type="Texture2D" uid="uid://ct5wprwtv2eqg" path="res://player/sprites/dash_charging/dc0006.png" id="11_b8hi5"]
 [ext_resource type="Texture2D" uid="uid://cnntr0i2risy1" path="res://player/sprites/jump/jump4.png" id="11_ymppr"]
+[ext_resource type="Texture2D" uid="uid://srubuqbma5rk" path="res://player/sprites/dead/d2.png" id="12_dx5ib"]
+[ext_resource type="Texture2D" uid="uid://dqidus3qajvy8" path="res://player/sprites/dead/d3.png" id="13_a2xo5"]
+[ext_resource type="Texture2D" uid="uid://ckkc1ks4k0oxf" path="res://player/sprites/dead/d4.png" id="14_art4l"]
+[ext_resource type="Texture2D" uid="uid://b4ktgtqimd87f" path="res://player/sprites/dead/d5.png" id="15_fjxoa"]
 [ext_resource type="Texture2D" uid="uid://c1d54qiwgvs51" path="res://player/sprites/punch/down/k0.png" id="16_1s1yo"]
 [ext_resource type="Texture2D" uid="uid://n0tvikpngbtp" path="res://player/sprites/punch/front/p1.png" id="16_r7pn3"]
 [ext_resource type="Texture2D" uid="uid://c83244jn6n7i7" path="res://player/sprites/wall/wall0.png" id="17_0bcis"]
@@ -34,7 +40,7 @@
 [ext_resource type="PackedScene" uid="uid://nb52cuutp7fm" path="res://player/attacks/hitting_area.tscn" id="19_x7c3f"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_65lrr"]
-size = Vector2(96, 173)
+size = Vector2(82, 157)
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_akk2m"]
 frequency = 0.0051
@@ -77,6 +83,34 @@ animations = [{
 }],
 "loop": false,
 "name": &"dash_charge",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("10_1so5t")
+}, {
+"duration": 1.0,
+"texture": ExtResource("11_55jnj")
+}, {
+"duration": 1.0,
+"texture": ExtResource("12_dx5ib")
+}],
+"loop": false,
+"name": &"dead_falling",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("13_a2xo5")
+}, {
+"duration": 1.0,
+"texture": ExtResource("14_art4l")
+}, {
+"duration": 1.0,
+"texture": ExtResource("15_fjxoa")
+}],
+"loop": false,
+"name": &"dead_floor",
 "speed": 12.0
 }, {
 "frames": [{
@@ -196,8 +230,11 @@ point_count = 1
 _data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
 point_count = 2
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_1so5t"]
+size = Vector2(28, 142)
+
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_bnf15"]
-size = Vector2(28, 161)
+size = Vector2(28, 141)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_c35mf"]
 size = Vector2(80, 166)
@@ -210,7 +247,7 @@ collision_layer = 2
 script = ExtResource("1_qpvai")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(0, -79.5)
+position = Vector2(0, -71.5)
 shape = SubResource("RectangleShape2D_65lrr")
 
 [node name="Visuals" type="Node2D" parent="."]
@@ -224,7 +261,7 @@ unique_name_in_owner = true
 position = Vector2(0, -108)
 scale = Vector2(0.483371, 0.483371)
 sprite_frames = SubResource("SpriteFrames_7keir")
-animation = &"punch_down"
+animation = &"wall"
 autoplay = "idle"
 
 [node name="Particles" parent="." instance=ExtResource("5_gfe0u")]
@@ -283,8 +320,8 @@ position = Vector2(-48, -83)
 collision_layer = 0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="WallAreas/LeftWallArea"]
-position = Vector2(0, 2.5)
-shape = SubResource("RectangleShape2D_bnf15")
+position = Vector2(0, 12)
+shape = SubResource("RectangleShape2D_1so5t")
 debug_color = Color(0, 0.632114, 0.454988, 0.42)
 
 [node name="RightWallArea" type="Area2D" parent="WallAreas"]
@@ -293,7 +330,7 @@ position = Vector2(48, -83)
 collision_layer = 0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="WallAreas/RightWallArea"]
-position = Vector2(0, 2.5)
+position = Vector2(0, 12.5)
 shape = SubResource("RectangleShape2D_bnf15")
 debug_color = Color(0, 0.632114, 0.454988, 0.42)
 

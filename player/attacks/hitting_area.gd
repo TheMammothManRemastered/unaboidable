@@ -10,7 +10,6 @@ func hit() -> void:
 		if things_hit >= max_hits: break
 		
 		things_hit += 1
-		print("hit! things_hit = ", things_hit)
 		body.hurt()
 	
 	visible = true
