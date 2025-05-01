@@ -2,14 +2,10 @@
 
 [ext_resource type="Script" uid="uid://hh6raswycj00" path="res://boids/boid_types/bomboideer.gd" id="1_86nkk"]
 [ext_resource type="PackedScene" uid="uid://boi3np5wy1gwn" path="res://boids/boid_types/boid_base.tscn" id="1_fvou3"]
-[ext_resource type="Texture2D" uid="uid://bsrjlcjxe7fse" path="res://art/fogging-bomb-373445508.jpg" id="2_86nkk"]
+[ext_resource type="Texture2D" uid="uid://ry8au3mtnq71" path="res://boids/boid_bomb.png" id="3_l7gx7"]
 
 [node name="Bomboideer" instance=ExtResource("1_fvou3")]
 script = ExtResource("1_86nkk")
 
-[node name="CanvasGroup" parent="." index="0"]
-visible = false
-
-[node name="BombSprite" type="Sprite2D" parent="." index="2"]
-scale = Vector2(0.0305461, 0.0305461)
-texture = ExtResource("2_86nkk")
+[node name="Sprite2D" parent="CanvasGroup" index="0"]
+texture = ExtResource("3_l7gx7")
