@@ -352,8 +352,8 @@ void main() {
 
     // common to all boids
     CURR_BOID_VELOCITY += calculate_boundary_vector() + calculate_cohesion_vector()
-        + calculate_alignment_vector() + calculate_separation_vector()
-        + calculate_avoidance_object_vector() + calculate_goal_vector();
+        + calculate_alignment_vector() + calculate_separation_vector();
+        //+ calculate_avoidance_object_vector() + calculate_goal_vector();
     cap_speed();
 
     // update position
