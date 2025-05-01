@@ -29,16 +29,21 @@ func _physics_process(delta: float) -> void:
 func _on_game_start() -> void:
 	timer.start(wave_interval)
 
+var kendrick = 1
+
 func _on_timeout() -> void:
 	print("boid count: ", SwarmOverlord.instance.boid_objects.size())
 	if SwarmOverlord.instance.are_boids_present():
 		return
-	
+	if kendrick < 1:
+		return
 	var overlord: SwarmOverlord = SwarmOverlord.instance
 	var b: Boid = SimpleBoid.boid_scene.instantiate()
 	b.global_position = Vector2(-1700, 0)
 	overlord.get_canvas_group().add_child(b)
 	overlord.queue_add_boid(b)
+	
+	kendrick -= 1
 	
 	# TODO: delete this!!!!
 	return
