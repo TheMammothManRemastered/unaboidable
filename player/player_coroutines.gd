@@ -61,16 +61,12 @@ func _set_player_position(position: Vector2) -> void:
 
 func main_attack() -> void:
 	const MAX_HOME_DISTANCE := 500.0
-	const SPEED_PER_PX := 200.0
 	const LUNGE_DISTANCE := 300.0
 	const HOMING_EXTRA_DISTANCE := 40.0
 	const DECEL_TIME := 0.3
 	const FIXED_TIME := 0.2
 	
 	control_lock = true
-	
-	animation_override = true
-	_p.player_sprite.play("punch")
 	
 	var direction = Input.get_vector("move_left", "move_right", "move_up", "move_down")
 	var distance = LUNGE_DISTANCE
@@ -82,16 +78,38 @@ func main_attack() -> void:
 		else:
 			direction = Vector2(randf_range(-1, 1), randf_range(-1, 1)).normalized()
 	
+	# set animation (based on direction)
+	animation_override = true
+	if direction.y < -.2:
+		_p.player_sprite.play("punch_up")
+	elif direction.y < .4:
+		_p.player_sprite.play("punch_front")
+	else:
+		_p.player_sprite.play("punch_down")
+	
 	_p.velocity = Vector2.ZERO
 	if direction.x != 0: _p.facing_direction = sign(direction.x)
 	
 	var t = create_tween().set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_SPRING)
 	t.tween_method(_set_player_position, _p.position, _p.position + direction * distance, DECEL_TIME)
 	
-	_p.dash_attack.long_hit(DECEL_TIME)
-	await _timer(FIXED_TIME)
+	var hit_something := false
+	_p.main_attack.long_hit(DECEL_TIME)
+	while await _timer_step(FIXED_TIME):
+		if _p.main_attack.things_hit > 0:
+			_p.main_attack.stop_hit()
+			hit_something = true
+			break
 	
 	t.kill()
+	if hit_something:
+		const BOUNCE_SPEED := 1000.0
+		_p.velocity = -direction * BOUNCE_SPEED
+		
+		# ensure some upwards bounce
+		if _p.velocity.y > 0: _p.velocity.y *= -1
+		if abs(_p.velocity.y) < 200: _p.velocity.y = -200
+		
 	queue_free()
 
 func dive_attack() -> void:

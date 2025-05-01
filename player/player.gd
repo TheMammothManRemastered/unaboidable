@@ -40,6 +40,7 @@ var active_coroutine: PlayerCoroutines
 @onready var right_wall_area: Area2D = %RightWallArea
 
 @onready var dash_attack: HittingArea = %DashAttack
+@onready var main_attack: HittingArea = %MainAttack
 
 static var instance: Player
 
@@ -59,10 +60,7 @@ func _process(delta: float) -> void:
 	# attacks
 	if not moves_prevented():
 		if Input.is_action_just_pressed("primary"):
-			if Input.is_action_pressed("move_down"):
-				new_coroutine().dive_attack()
-			else:
-				new_coroutine().main_attack()
+			new_coroutine().main_attack()
 		elif Input.is_action_just_pressed("special"):
 			new_coroutine().special_attack()
 	

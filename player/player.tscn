@@ -1,4 +1,4 @@
-[gd_scene load_steps=37 format=3 uid="uid://bd52wxgkn7xto"]
+[gd_scene load_steps=45 format=3 uid="uid://bd52wxgkn7xto"]
 
 [ext_resource type="Script" uid="uid://btiy4yn0xs6yr" path="res://player/player.gd" id="1_qpvai"]
 [ext_resource type="Shader" uid="uid://cq7e3qax24kci" path="res://art/scribble/marker.gdshader" id="2_k7hww"]
@@ -21,8 +21,16 @@
 [ext_resource type="Texture2D" uid="uid://cvxnacixm5sv0" path="res://player/sprites/dash_charging/dc0005.png" id="10_r7pn3"]
 [ext_resource type="Texture2D" uid="uid://ct5wprwtv2eqg" path="res://player/sprites/dash_charging/dc0006.png" id="11_b8hi5"]
 [ext_resource type="Texture2D" uid="uid://cnntr0i2risy1" path="res://player/sprites/jump/jump4.png" id="11_ymppr"]
-[ext_resource type="Texture2D" uid="uid://ooh62vg1un4t" path="res://player/sprites/punch/punch_wip.png" id="16_g4c7l"]
+[ext_resource type="Texture2D" uid="uid://c1d54qiwgvs51" path="res://player/sprites/punch/down/k0.png" id="16_1s1yo"]
+[ext_resource type="Texture2D" uid="uid://n0tvikpngbtp" path="res://player/sprites/punch/front/p1.png" id="16_r7pn3"]
 [ext_resource type="Texture2D" uid="uid://c83244jn6n7i7" path="res://player/sprites/wall/wall0.png" id="17_0bcis"]
+[ext_resource type="Texture2D" uid="uid://d37tpo5xbg6cj" path="res://player/sprites/punch/down/k1.png" id="17_5ejfk"]
+[ext_resource type="Texture2D" uid="uid://c2uhovgjg7nft" path="res://player/sprites/punch/front/p2.png" id="17_b8hi5"]
+[ext_resource type="Texture2D" uid="uid://bjnkvwt28rhui" path="res://player/sprites/punch/uppercut/uc1.png" id="17_rptt4"]
+[ext_resource type="Texture2D" uid="uid://dr1fi878ml7gb" path="res://player/sprites/punch/front/p3.png" id="18_2uvqg"]
+[ext_resource type="Texture2D" uid="uid://dp2hjqcdqj8bh" path="res://player/sprites/punch/down/k2.png" id="18_jd2rm"]
+[ext_resource type="Texture2D" uid="uid://duqdsgwse3350" path="res://player/sprites/punch/uppercut/uc2.png" id="18_r7pn3"]
+[ext_resource type="Texture2D" uid="uid://bs0yjo5wl10au" path="res://player/sprites/punch/uppercut/uc3.png" id="19_b8hi5"]
 [ext_resource type="PackedScene" uid="uid://nb52cuutp7fm" path="res://player/attacks/hitting_area.tscn" id="19_x7c3f"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_65lrr"]
@@ -101,11 +109,45 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
-"texture": ExtResource("16_g4c7l")
+"texture": ExtResource("16_1s1yo")
+}, {
+"duration": 1.0,
+"texture": ExtResource("17_5ejfk")
+}, {
+"duration": 1.0,
+"texture": ExtResource("18_jd2rm")
 }],
-"loop": true,
-"name": &"punch",
-"speed": 0.0
+"loop": false,
+"name": &"punch_down",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("16_r7pn3")
+}, {
+"duration": 1.0,
+"texture": ExtResource("17_b8hi5")
+}, {
+"duration": 1.0,
+"texture": ExtResource("18_2uvqg")
+}],
+"loop": false,
+"name": &"punch_front",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("17_rptt4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("18_r7pn3")
+}, {
+"duration": 1.0,
+"texture": ExtResource("19_b8hi5")
+}],
+"loop": false,
+"name": &"punch_up",
+"speed": 12.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -182,7 +224,7 @@ unique_name_in_owner = true
 position = Vector2(0, -108)
 scale = Vector2(0.483371, 0.483371)
 sprite_frames = SubResource("SpriteFrames_7keir")
-animation = &"punch"
+animation = &"punch_down"
 autoplay = "idle"
 
 [node name="Particles" parent="." instance=ExtResource("5_gfe0u")]
@@ -264,13 +306,12 @@ unique_name_in_owner = true
 [node name="CollisionShape2D" parent="AttackHits/DashAttack" index="0"]
 shape = SubResource("RectangleShape2D_c35mf")
 
-[node name="MainAttack" type="Node2D" parent="."]
+[node name="MainAttack" parent="AttackHits" instance=ExtResource("19_x7c3f")]
+unique_name_in_owner = true
+max_hits = 1
 
-[node name="HittingArea" parent="MainAttack" instance=ExtResource("19_x7c3f")]
-position = Vector2(0, -80)
-
-[node name="CollisionShape2D" parent="MainAttack/HittingArea" index="0"]
+[node name="CollisionShape2D" parent="AttackHits/MainAttack" index="0"]
 shape = SubResource("RectangleShape2D_65viv")
 
 [editable path="AttackHits/DashAttack"]
-[editable path="MainAttack/HittingArea"]
+[editable path="AttackHits/MainAttack"]

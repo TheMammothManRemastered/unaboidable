@@ -30,7 +30,7 @@ func _on_game_start() -> void:
 	timer.start(wave_interval)
 
 func _on_timeout() -> void:
-	print(SwarmOverlord.instance.boid_objects.size())
+	print("boid count: ", SwarmOverlord.instance.boid_objects.size())
 	if SwarmOverlord.instance.are_boids_present():
 		return
 	
