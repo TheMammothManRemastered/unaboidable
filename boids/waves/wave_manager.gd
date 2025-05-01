@@ -34,6 +34,15 @@ func _on_timeout() -> void:
 	if SwarmOverlord.instance.are_boids_present():
 		return
 	
+	var overlord: SwarmOverlord = SwarmOverlord.instance
+	var b: Boid = SimpleBoid.boid_scene.instantiate()
+	b.global_position = Vector2(-1700, 0)
+	overlord.get_canvas_group().add_child(b)
+	overlord.queue_add_boid(b)
+	
+	# TODO: delete this!!!!
+	return
+	
 	print("spawning wave ", curr_wave, " ", number_of_waves)
 	
 	var wave: Wave = get_children()[curr_wave]
